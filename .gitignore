@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 本地实验 / 测试资源
+assets/
+results/
+
+# Skill runtime state（如果用户运行 Skill 时本地产物落到这）
+.chatgpt-web-delegate/
+
+# 日志
+*.log
