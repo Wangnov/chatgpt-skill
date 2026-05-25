@@ -89,7 +89,9 @@ watcher 取回后用户也常说一句"存下来"。
 ## 容易踩的坑
 
 - **DR artifact 导出文件名固定**：每次都是 `deep-research-report.md`，**多次下载会互相覆盖**。主 Claude 必须 mv 完一个再下下一个，不要批量下到 `~/Downloads/` 再统一处理
+- **`navigate` 后第一次 `get_page_text` 可能只回 footer**——页面还在加载，主区域文字还没渲染好。看到只返回 `<model name>\nChatGPT 也可能会犯错` 不要以为对话空白，**等 5 秒再 `get_page_text` 一次**（2026-05-25 codex-asr 实测确认）
 - **Thinking 模型的折叠思考过程**：get_page_text 会一起拉回。要识别"已思考 Xs"标记，**只保留 final answer**，思考过程放进 frontmatter 的 `think_time` 字段就够了
+- **多轮重复回答**（如 watcher 误判导致 Pro 写两遍）：忠实保留两轮历史，frontmatter 加 `two_rounds_reason` 字段说明原因，不要 LLM 自动去重
 - **archived 对话 navigate 不到**：用户如果想存的对话已经归档，要先去设置 → 数据管理 → 已归档聊天 → 取消归档
 - **同名文件覆盖**：Write 之前 `ls` 检查，存在则加 `(2)` `(3)` 后缀
 - **对话标题含特殊字符**：sanitize 必做（`/ \ : * ? " < > |` → `_`），否则 mkdir / write 失败
@@ -98,5 +100,6 @@ watcher 取回后用户也常说一句"存下来"。
 ## 2026-05-25 实测路径已验证
 
 - 档 A：`get_page_text` 实测多次拉到完整 Pro review（rust-silk 8k 字 / DSE 数学 21m 5s）
+- **档 A 端到端落盘实测**：codex-asr review 对话（两轮 18m 56s 思考）→ `~/Downloads/chatgpt-skill/2026-05-25_GitHub_项目深度评审_6a143fb9.md` 19.5KB / 399 行，含 YAML frontmatter（含 `two_rounds_reason` 字段说明 watcher 误判史）
 - 档 B：DR artifact 导出 Markdown 实测成功（55m 报告 31KB，22 引用，279 搜索）
 - 档 C：生成图片"分享此图片→下载"实测成功（2MB PNG）
