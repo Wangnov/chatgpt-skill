@@ -117,6 +117,8 @@ Fallback / 主 Claude 直接判定的简版（中文 UI 实测）：
 
 **Fallback：环境不支持 Agent 工具（纯 SDK 调用等）→ 用 `scripts/heartbeat.sh`**，详见 [references/claude-code-async.md](references/claude-code-async.md)。fallback 模式下主 LLM 在每轮唤醒时**静默检查**，未完成不打扰用户。
 
+**Pull 模式（跨小时任务的正解）**：Deep Research 这种 30 分钟到几小时的任务**不要 spawn watcher**——Claude Code session 撑不住几小时，但 ChatGPT 后端不依赖客户端在线。主 Claude 提交完直接告诉用户 conversation URL，用户回来（哪怕新 session）说"看那个 DR" 即可。详见 [examples/deep-research-trigger.md](examples/deep-research-trigger.md)。
+
 ## 绝对不做
 
 1. **不导出、不复制、不保存** cookie / storage_state / OAuth token / localStorage
