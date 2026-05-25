@@ -1,4 +1,4 @@
-# chatgpt-web-delegate
+# chatgpt-skill
 
 让 **Claude Code** 通过 `claude-in-chrome` MCP 操控用户**已登录的 ChatGPT 网页**，把咨询任务委托给指定 ChatGPT 模型（Instant / Thinking / Pro / Deep Research），异步等待并取回结果。同时支持管理 ChatGPT 的对话/项目/Memory/库/分享。
 
@@ -7,7 +7,7 @@
 ## 安装
 
 ```bash
-git clone https://github.com/Wangnov/chatgpt-skill.git ~/.claude/skills/chatgpt-web-delegate
+git clone https://github.com/Wangnov/chatgpt-skill.git ~/.claude/skills/chatgpt-skill
 ```
 
 或者把整个目录复制到你想要的 Skill 路径下（Claude Code 会自动识别 SKILL.md 的 frontmatter）。

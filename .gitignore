@@ -14,7 +14,7 @@ assets/
 results/
 
 # Skill runtime state（如果用户运行 Skill 时本地产物落到这）
-.chatgpt-web-delegate/
+.chatgpt-skill/
 
 # 日志
 *.log
