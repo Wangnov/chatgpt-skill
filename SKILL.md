@@ -1,9 +1,9 @@
 ---
-name: chatgpt-web-delegate
+name: chatgpt-skill
 description: 通过用户现有的、已登录的 ChatGPT 网页会话委托任务给任意 ChatGPT 模型，并管理对话/项目/Memory/库等。复用浏览器登录态、文件、连接器、项目。适合用户说"问问 ChatGPT / 让 GPT Pro 帮我想想 / 用 @Google 云端硬盘列一下 / 让 ChatGPT 做个 deep research / 删了这个对话 / 归档全部聊天 / 撤销那个分享 / 清掉 Memory / 创建一个项目"等。不发起独立的自动化浏览器，不接触 cookie/session。
 ---
 
-# chatgpt-web-delegate
+# chatgpt-skill
 
 让 Claude Code 像一个会用浏览器的人一样，**复用用户已登录的 ChatGPT 网页**，把任务交给指定的 ChatGPT 模型（Instant / Thinking / Pro 等），等结果回来。
 
@@ -61,6 +61,14 @@ description: 通过用户现有的、已登录的 ChatGPT 网页会话委托任�
 #### 文件 / 图片上传 — 暂不可用
 
 Claude Code MCP 桥接 bug（[#31210](https://github.com/anthropics/claude-code/issues/31210)），`file_upload` 调用任意本地路径都被白名单拒绝。**让用户自己在浏览器里上传**（点 `+` 或拖图进 composer），主 Claude 接管后续：`read_page` 验证 chip 出现 → 写 prompt → send → spawn watcher。
+
+#### 产物下载 — 可用（跟上传方向相反，走浏览器原生通道）
+
+- **ChatGPT 给的下载链接（PDF/CSV/代码文件等）**：直接 `left_click` 该链接 → 浏览器原生下载到 `~/Downloads/`
+- **ChatGPT 生成的图片**：图片底部没有显式"下载"，**入口藏在"分享此图片"弹窗里**——点弹窗最右侧的橙色"下载"按钮。命名格式 `ChatGPT Image YYYY年M月D日 HH_MM_SS.png`
+- **`claude-in-chrome` 屏蔽了 img.src URL**（防凭证泄露），所以**不能**用 javascript_tool + curl 旁路
+- 主 Claude 找下载文件：`ls -lat ~/Downloads/ | head -5` 看最新文件，或按文件名 pattern 匹配
+- 详细路径和坑见 [references/manage-actions.md](references/manage-actions.md) 第 6.5 节"产物下载"
 
 ### 4. 提交后
 
