@@ -1,6 +1,6 @@
 ---
 name: chatgpt-skill
-description: 通过用户现有的、已登录的 ChatGPT 网页会话委托任务给任意 ChatGPT 模型，并管理对话/项目/Memory/库等。复用浏览器登录态、文件、连接器、项目。适合用户说"问问 ChatGPT / 让 GPT Pro 帮我想想 / 用 @Google 云端硬盘列一下 / 让 ChatGPT 做个 deep research / 删了这个对话 / 归档全部聊天 / 撤销那个分享 / 清掉 Memory / 创建一个项目"等。不发起独立的自动化浏览器，不接触 cookie/session。
+description: 通过用户现有的、已登录的 ChatGPT 网页会话委托任务给任意 ChatGPT 模型，并管理对话/项目/Memory/库等，还能把对话/Artifact/图片落盘到本地。复用浏览器登录态、文件、连接器、项目。适合用户说"问问 ChatGPT / 让 GPT Pro 帮我想想 / 用 @Google 云端硬盘列一下 / 让 ChatGPT 做个 deep research / 删了这个对话 / 归档全部聊天 / 撤销那个分享 / 清掉 Memory / 创建一个项目 / 把这个对话存下来 / 下载那个 DR 报告 / 保留这张图片到本地"等。不发起独立的自动化浏览器，不接触 cookie/session。
 ---
 
 # chatgpt-skill
@@ -148,6 +148,20 @@ Fallback / 主 Claude 直接判定的简版（中文 UI 实测）：
 2. **删项目 = 永久删项目内所有对话**，二次确认前要用户口头同意
 3. **删对话不清 Memory**，删完后提醒用户单独去个性化 → 记忆里清
 
+## 聊天记录落盘到本地
+
+用户说"把这个对话存下来"、"下载那个 DR"、"保留这张图片"等时，按 [references/save-conversation.md](references/save-conversation.md) 走 3 档分流：
+
+| 档 | 内容 | 路径 |
+|---|---|---|
+| A | 普通 chat message | `get_page_text` + 主 Claude 写 `.md` |
+| B | Artifact（DR / Canvas）| 点 artifact 自带 ↓ 菜单 → "导出到 Markdown" → mv |
+| C | 图片 | "分享此图片"→"下载" → mv |
+
+默认目录 `~/Downloads/chatgpt-skill/`，文件名 `YYYY-MM-DD_<title>_<uuid8>.<ext>`。
+
+**显式触发** —— 用户没说要存就不要自动写盘，避免污染硬盘。watcher 取回结果后用户回一句"存下来" 才动手。
+
 ## Examples
 
 [examples/](examples/) 里有几个典型场景示范：
@@ -157,3 +171,4 @@ Fallback / 主 Claude 直接判定的简版（中文 UI 实测）：
 - `deep-research-trigger.md` — 用提示词触发 deep research 并异步等待
 - `pro-github-pr-review.md` — Pro 模型 + @GitHub 对 PR 做深度 review（含实测：5m 7s）
 - `project-context-consult.md` — 进项目主页 + 利用项目知识库（含实测：DSE 数学 Pro 21m 5s）
+- `save-conversation.md` — 把对话/Artifact/图片落盘到本地（3 档分流：A 普通 message / B Artifact / C 图片）

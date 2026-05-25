@@ -2,6 +2,34 @@
 
 按 [Keep a Changelog](https://keepachangelog.com/) 格式记录，本项目遵循语义化版本（pre-1.0 阶段）。
 
+## [v0.7] - 2026-05-25
+
+### Added
+- **聊天记录落盘**——把 ChatGPT 对话/Artifact/图片保存到本地，按 3 档分流：
+  - 档 A 普通 chat message：`get_page_text` + 主 Claude 写 `.md`
+  - 档 B Artifact（DR / Canvas）：点 artifact 自带 ↓ 菜单 → "导出到 Markdown" → `mv`
+  - 档 C 图片：复用 v0.5 "分享此图片→下载" → `mv`
+- `references/save-conversation.md`（240 行）—— 完整落盘手册：3 档详细操作、Markdown 模板（YAML frontmatter）、文件名规范、跟 watcher 衔接、6 类踩坑
+- `examples/save-conversation.md` —— 3 个端到端示例（rust-silk review / DR 报告 / 生成图片）
+- SKILL.md 加 "聊天记录落盘到本地" 节 + description 触发语扩展（"存下来 / 下载这个对话 / 保留这张图片到本地"）
+
+### Verified
+- 档 A：之前多次 `get_page_text` 实测拉到完整 Pro review（rust-silk / codex-asr / DSE 数学）
+- 档 B：DR artifact 导出 Markdown 实测成功（55m 报告 31KB，22 引用，279 搜索）
+- 档 C：生成图片"分享此图片→下载"实测成功（2MB PNG）
+
+### Design Choices
+- **显式触发**：用户没说要存就不写盘，避免污染硬盘（防止 watcher COMPLETE 后自动堆积大量对话副本）
+- **默认目录 `~/Downloads/chatgpt-skill/`**：可见性高，便于用户在 Finder 看到。改用 `~/.chatgpt-skill/` 隐藏目录可在后续版本切换
+- **文件名约定** `YYYY-MM-DD_<title>_<uuid8>.<ext>`：保留中文标题、防文件系统不友好字符、用 uuid8 防同名冲突
+- **DR/Canvas artifact 不用 get_page_text**：v0.6 取 DR 时发现 artifact 内容在 `<main>` 之外，accessibility tree 只标记 `internal://deep-research` 占位——必须走 artifact 自带的 ↓ 导出菜单
+
+### Discovered
+- **DR artifact 导出文件名固定**（`deep-research-report.md`），多次下载会互相覆盖——主 Claude 必须 `mv` 完一个再下下一个，不能批量下到 `~/Downloads/` 再统一处理
+- **ChatGPT artifact 自带导出菜单**：右上 ↓ 图标 → 4 选项（复制内容 / 导出 Markdown / 导出 Word / 导出 PDF）—— 这是档 B 的核心入口
+
+---
+
 ## [v0.6] - 2026-05-25
 
 ### Added
