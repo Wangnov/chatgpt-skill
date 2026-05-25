@@ -157,6 +157,17 @@ ChatGPT 显示的思考时间: 已思考 5m 7s
 | MCP 工具访问 | ✅ subagent 也能用 | ✅ 唤醒主 LLM 后用 |
 | 适用场景 | Claude Code | 纯 SDK / 无 Agent 工具的环境 |
 
+## 特殊产物形态的取回
+
+| 产物形态 | get_page_text 够吗 | 备注 |
+|---|---|---|
+| 普通 chat message | ✅ 够 | 默认情况 |
+| **Canvas / artifact** | ✅ 够 | 2026-05-25 实测：当前版本 Canvas 集成在主 chat 区作为带标题+分段的容器，不是独立右侧面板。get_page_text 一次拿完整内容（610 字短文实测全拿到）。**不需要特殊处理** |
+| Pro 长篇带表格 / 时间序列卡片 | ✅ 够 | 天气查询实测：表格数据展开后 get_page_text 也都包含 |
+| Thinking 折叠思考过程 | ⚠️ 注意 | get_page_text 会一起拉回。要的是 final answer，需要从结果文本里剥掉"已思考 Xs"之前的部分 |
+| 图片生成 | n/a | 图片走下载路径，见 [manage-actions.md](manage-actions.md) 第 6.5 节 |
+| ChatGPT 给的文件下载链接 | n/a | get_page_text 能拿到链接锚文本，但实际下载要主 Claude `left_click` 链接 |
+
 ## 已知限制
 
 1. **多个 watcher 并发**：如果用户同时提交两个 ChatGPT 任务，需要两个 watcher 各跑各的。Agent 工具支持并发 spawn，但 watcher 之间要用不同的 tabId 或 URL 区分
