@@ -1,0 +1,111 @@
+# Changelog
+
+按 [Keep a Changelog](https://keepachangelog.com/) 格式记录，本项目遵循语义化版本（pre-1.0 阶段）。
+
+## [v0.5] - 2026-05-25
+
+### Added
+- **产物下载流程**：实测三种产物（PDF/CSV 链接、生成图片、库历史文件）的下载路径都走浏览器原生通道 → `~/Downloads/`，跟 `file_upload` 的 bug 路径完全相反
+- `references/manage-actions.md` 第 6.5 节 — 产物下载手册：入口位置 / 触发方式 / 命名规则 / 屏蔽掉的旁路 / 主 Claude 找文件的 Bash 命令
+- `SKILL.md` 第 3 节加 **产物下载** 子节（与"文件上传暂不可用"形成对偶）
+
+### Changed
+- **修正"分享 = 创建公开 URL" 规则**：
+  - 对话级"分享"：打开弹窗即创建（实测确认）
+  - 图片"分享此图片"：打开**不会**自动创建，只在点"复制链接"时创建，所以为下载点开是安全的
+- `references/manage-actions.md` 安全总则第 1 条限定为"对话级"
+
+### Fixed
+- `manage-actions.md` 第 7 节死引用："见 SKILL.md 第 3 节"改为"见本文件第 4-5 节"
+
+### Verified
+- ChatGPT 给的 PDF 下载链接（`W7D3_joint_variation_ratio_algebra_guide.pdf`，200KB）→ ~/Downloads/ ✅
+- Instant 生成图片（`ChatGPT Image 2026年5月25日 15_25_50.png`，2MB）→ ~/Downloads/ ✅
+- `javascript_tool` 取 `img.src` → 返回 `[BLOCKED: Cookie/query string data]`（确认 claude-in-chrome 屏蔽含凭证 URL）
+
+---
+
+## [v0.4] - 2026-05-25
+
+### Added
+- **`references/manage-actions.md`**（235 行）— 管理 ChatGPT 完整手册：
+  1. 对话级管理（普通 vs 项目内 `...` 菜单差异）
+  2. 项目级管理（创建/设置/删除）
+  3. Message 级 `...`（branch、source、朗读）
+  4. 数据管理面板（共享链接 / 归档 / 导出）
+  5. 个性化面板（含 Memory `[管理]`、用户隐私字段警告）
+  6. 全局页面（库 / 应用 / 安排）
+  7. URL 形态 cheat sheet（6 种格式）
+  8. 安全总则（8 条）
+- `SKILL.md` 新增"管理 ChatGPT"节，含 3 条特别警告
+
+### Verified
+- 创建/重命名/分享/归档/取消归档/删除项目和对话端到端跑通
+- DSE 数学项目知识库自动引用（Pro 21m 5s 实测，watcher 累计 19 分钟，主 Sonnet 0 次打扰）
+- 共享链接管理（撤销公开 URL 路径）
+- 数据管理面板 13 个 tab 全部查看
+
+### Discovered (Safety-Critical)
+- **打开"分享"弹窗即创建公开 URL**——哪怕不复制不发送（v0.5 修正为"对话级独有，图片不会"）
+- **删除项目永久删除所有项目内对话**——有二次确认弹窗
+- **删除对话不自动清 Memory**——必须单独去个性化 → 记忆 [管理] 删
+- **项目内对话不能置顶**——点了报 toast
+- **个性化的"你的详情"字段含用户隐私**——绝不导出到外部
+
+---
+
+## [v0.3] - 2026-05-25
+
+### Added
+- **Watcher subagent 模式**（异步等待主推方案）：spawn 一个 `background: true` 的 Haiku watcher subagent，循环 `read_page` 看完成，主 Sonnet 全程沉默
+- `references/watcher-subagent.md`（175 行）— Agent 调用模板 + watcher prompt 模板 + 4 类任务的 sleep 间隔表 + NEEDS_USER_INPUT 检测分支
+- `references/error-and-limits.md`（158 行）— 10 种错误/限流场景的可见信号和处理：
+  - 速率限制 / Pro 配额耗尽 / 模型不可用
+  - CAPTCHA / OAuth / session 过期
+  - Continue generating 截断 / 中途反问
+  - 文件上传失败 / ChatGPT 整体故障
+
+### Changed
+- 异步等待主推方案从 `scripts/heartbeat.sh`（v0.2）改为 watcher subagent
+- heartbeat 模式降级为 fallback（环境不支持 Agent 工具时用）
+- 4 个 examples 全部从 heartbeat 改成 watcher
+
+### Verified
+- Pro + @GitHub PR review：watcher 累计 240s，ChatGPT 思考 5m 7s，**主 Sonnet 0 次被打扰**，watcher 消耗 86k Haiku token
+- Pro + 项目 PDF 知识库：21m 5s 长任务下 watcher 模式稳定
+
+---
+
+## [v0.2] - 2026-05-25 (初版)
+
+### Added
+- **`SKILL.md`** 主指令 — 200 行内手册式 Skill：何时触发 / 接入方式（强制 claude-in-chrome MCP，禁 Playwright）/ 操作流程（4 条原则）/ 完成判定 / 异步等待 / 绝对不做
+- **`scripts/heartbeat.sh`** — 40 行 shell fallback：sleep + exit + 让主 LLM 在唤醒时静默检查
+- **`references/claude-code-async.md`** — heartbeat fallback 文档
+- **5 个 examples**：
+  - `auto-google-drive-list.md` — 默认模型 + @Google 云端硬盘
+  - `thinking-github-unread-issues.md` — Thinking + @GitHub
+  - `deep-research-trigger.md` — `+` 菜单触发深度研究
+  - `pro-github-pr-review.md` — Pro + @GitHub PR 审核
+  - `project-context-consult.md` — 进项目主页用项目知识库
+
+### Design Principles
+- **手册式而非工程式**：不写 selector / 不写状态机 / 不写 manifest schema。靠 LLM 当场视觉判断
+- **信任 LLM**：主指令短、按需 reference、不堆规则
+- **安全优先**：不替用户授权 OAuth / 不绕 CAPTCHA / 不存 session / 破坏性操作必须用户确认
+- **文件上传暂不可用**：Claude Code MCP 桥接 bug [#31210](https://github.com/anthropics/claude-code/issues/31210)，需要用户在浏览器里手动上传
+
+### Verified
+- Thinking + @Google 云端硬盘 列文件（14s）
+- Pro + @Google 云端硬盘 推断工作轨迹（5m 25s）
+- 5 类模型切换 / app mention 验证 / 三种 URL 格式探测
+
+---
+
+## 待办（按优先级）
+
+- [ ] Pro 模型 message 级 `...` 是否真有"安排"创建定时任务的入口（v0.4 留下的悬而未决项）
+- [ ] Canvas / artifact 取回流程（watcher 的 get_page_text 是否够用还是需要专门处理）
+- [ ] ADA (Advanced Data Analysis) 上传 csv → 跑分析 → 下载结果链路
+- [ ] 等 Anthropic 修 [#31210](https://github.com/anthropics/claude-code/issues/31210) 解锁 file_upload，回头补完整上传 + 等待 + 下载 闭环
+- [ ] 发布到 [skills.sh](https://skills.sh) 索引（待 v1.0）
