@@ -45,43 +45,53 @@ Agent({
 
 **工作循环（严格执行）**
 
-1. 调用 mcp__Claude_in_Chrome__read_page，参数 tabId: <tabId>, filter: "all", max_chars: 10000
-2. 在返回的 accessibility tree 里搜这些信号判断是否还在生成：
-   - "Pro 思考中" / "正在思考" / "Thinking" / "Researching" / "正在搜索" / "正在分析"
-   - 任何 stop generating 按钮 / spinner / progress indicator
-3. **NEEDS_USER_INPUT 检测**（每轮 read_page 后都检查，优先级高于"还在生成"）：
-   如果页面出现任何下列信号，立刻进入步骤 7（不要继续等）：
-   - ChatGPT 在反问用户、要求 clarification（assistant message 末尾是问号 + 没有"思考中"字样）
-   - 出现 OAuth / 授权弹窗（"连接你的 [app]"、"Authorize"、"允许 ChatGPT 访问"）
-   - 出现登录页 / session 过期提示
-   - 出现速率限制 / 配额耗尽 / 模型不可用弹窗（详见 references/error-and-limits.md 的信号列表）
-   - 出现 CAPTCHA / 人机验证
-   - 出现 "Continue generating" 按钮（说明输出被截断，需要用户决定要不要续）
-4. 如果还在生成（且没有上述 NEEDS_USER_INPUT 信号）：
+**重要原则**：判断完成度**优先用 `get_page_text`**，不要用 `read_page` accessibility tree——长回答会被 `max_chars` 截断在中间，看不到末尾的 disclaimer / "已思考 Xs" 等关键信号（详见下方"异常处理"和验证记录）。
+
+1. 调用 **mcp__Claude_in_Chrome__get_page_text**，参数 tabId: <tabId>
+   - 这会拉 `<main>` 元素下的全部文本（用户消息 + assistant 回答 + footer disclaimer），不受 max_chars 截断限制
+2. 在返回的全文里**从末尾向上**搜这些**完成信号**（同时满足才算 COMPLETE）：
+   - 末尾包含 "**ChatGPT 也可能会犯错。请核查重要信息。**" （disclaimer，最稳的完成标志）
+   - 紧邻 disclaimer 之上出现 "**已思考 Xm Ys**" 或 "**已思考 Xs**" 字样（过去时，表示思考阶段结束）
+   - 全文里**含用户预期的内容关键词**（例如用户要 P0/P1/P2 review → 全文应该出现 "P0"、"P1"、文件行号；用户要写作 → 全文应该出现完整段落而不是单句进度摘要）
+3. 在全文里搜**进行中信号**（任一存在 → 仍在跑）：
+   - "正在思考" / "Pro 思考中" / "Researching" / "正在搜索" / "正在分析" / "Synthesizing"
+4. **NEEDS_USER_INPUT 检测**（每轮都检查，优先级高于"还在生成"）：
+   全文里出现下列信号 → 立刻进入步骤 7：
+   - ChatGPT 末尾是反问（问号结尾 + 没有"思考中"字样 + 没有 disclaimer）
+   - "连接你的 [app]" / "Authorize" / "允许 ChatGPT 访问"
+   - 登录页提示 / "Please log in"
+   - 速率限制 / 配额耗尽 / 模型不可用弹窗（详见 references/error-and-limits.md）
+   - CAPTCHA / "Verifying you are human"
+   - "Continue generating" / "继续生成" 按钮（输出被截断，要用户决定续不续）
+   - **DR 特有**："开始 N" 倒计时按钮（5 步研究计划未确认）
+5. 如果还在生成（既没完成信号也没 NEEDS_USER_INPUT 信号）：
    - 用 Bash 工具运行 sleep 60
    - 在你自己的笔记里累计等待秒数（从 0 开始）
    - 回到步骤 1
-5. 如果生成完成的标志同时满足：
-   - 没有"思考中/正在..."字样
-   - 末尾出现 "ChatGPT 也可能会犯错。请核查重要信息。" 或类似 disclaimer
-   - 底部 composer 区回到可输入态
-   - 进入步骤 6
-6. 调用 mcp__Claude_in_Chrome__get_page_text，参数 tabId: <tabId>，拿全文 → 返回给主 Claude（COMPLETE 状态）
-7. NEEDS_USER_INPUT 路径：调用 mcp__Claude_in_Chrome__get_page_text 拿当前可见内容 → 返回给主 Claude（NEEDS_USER_INPUT 状态 + 描述具体看到了什么 + 用户需要做什么动作）
+6. COMPLETE 路径：把 get_page_text 全文返回给主 Claude（注意提取用户提问之后的部分，过滤掉用户提问本身）
+7. NEEDS_USER_INPUT 路径：把 get_page_text 当前内容 + blocker 元数据返回主 Claude
+   - 如果需要更精确地找按钮 ref（如 OAuth 授权按钮），**这一步**才调用 `read_page filter: "interactive" max_chars: 5000` 看具体可点击元素
 
 **硬性约束**
 
 - 不要调用 navigate —— 会打断用户当前浏览器使用
 - 不要开新 tab、不要切 tab、不要点页面任何按钮（**特别不要点 OAuth / 授权 / 继续生成等按钮**）
 - 只读，不交互
-- 每轮检查只调用一次 read_page
-- 不要给主 Claude 发任何中间状态报告。完成 / NEEDS_USER_INPUT / 超时才返回
-- **累计等待硬上限：1800 秒（30 分钟）**。到了就 get_page_text 拿当前可见内容 + 标注 "TIMEOUT"
+- **每轮检查只调用一次 get_page_text**（不要为了"再确认"调多次）
+- 不要给主 Claude 发任何中间状态报告。COMPLETE / NEEDS_USER_INPUT / TIMEOUT / ERROR 才返回
+- **累计等待硬上限：1800 秒（30 分钟）**。到了就 get_page_text 拿当前内容 + 标注 "TIMEOUT"
 
 **异常处理**
 
-- read_page 返回错误 → 等 30 秒重试一次，再错就返回错误信息（ERROR 状态）
-- get_page_text 返回的内容里没有最近的 assistant message → 返回当前可见内容 + 标注 "PARTIAL"
+- get_page_text 返回错误 → 等 30 秒重试一次，仍错就返回 ERROR
+- get_page_text 返回的内容里看似有 assistant 输出但 disclaimer 没出现 → 仍按"在生成"处理，继续 sleep（不要标 PARTIAL，PARTIAL 留给 TIMEOUT 后的兜底）
+- 看到 disclaimer 但内容只是简短进度摘要（如"我已确认...等候选问题"）没有真正结论 → **不算 COMPLETE**——Pro 偶尔会"先报告进度等用户回复"，回 sleep + 在累计等待 > 600s 时升级为 NEEDS_USER_INPUT（blocker_type: incomplete_response）让主 Claude 决定是否追问"继续"
+
+**为什么不用 `read_page` 判断完成度**（避免重复踩坑）
+
+`read_page` 返回 accessibility tree 受 `max_chars` 限制：默认 50000，但长 Pro review 经常超过这个长度。截断后 watcher 看不到末尾的 disclaimer，会**误判为"还在生成"或"NEEDS_USER_INPUT 没结论"**。`get_page_text` 提取 `<main>` 元素文本无截断、压缩好，对完成度判断更可靠。
+
+`read_page` 仍然有用：**找具体元素 ref**（如 OAuth 按钮、删除按钮）时才用——它返回的 accessibility tree 含 ref_id，是 click/find 的前提。但**完成度判断和内容取回都用 `get_page_text`**。
 
 **输出格式**
 
@@ -176,7 +186,7 @@ ChatGPT 显示的思考时间: 已思考 5m 7s
 
 ## 验证记录
 
-2026-05-25 跑通：Pro + @GitHub 评估 `claude-code-statusline-pro` 仓库 PR 是否可合并
+### 2026-05-25 #1：Pro + @GitHub 评估 PR 可合并性（成功）
 
 - Watcher 实际运行 4m 52s
 - 累计等待 240s（4 个 60s 周期）
@@ -184,3 +194,25 @@ ChatGPT 显示的思考时间: 已思考 5m 7s
 - Watcher 工具调用 10 次，消耗 86,681 token（Haiku）
 - 主 Sonnet 被打扰 **0 次**
 - 返回内容完整、带结构化元数据（状态/等待/思考时间/app 调用迹象/全文）
+
+### 2026-05-25 #2：Pro + @GitHub review `rust-silk` 项目（成功）
+
+- Watcher 累计等待 870s（14.5 分钟）
+- Pro 思考 16m 14s
+- 完整 P0/P1/P2 review 取回，含 6 条 P1 + 9 条 P2 + 落地顺序
+
+### 2026-05-25 #3：Pro + @GitHub review `codex-asr` 项目（**失败两次，暴露设计缺陷**）
+
+第一个 watcher 用 `read_page max_chars: 10000` 判断完成度：
+- 累计 750s 后误判 NEEDS_USER_INPUT，但实际上 **Pro 第一轮已经写完了完整 P0/P1/P2 review**——`read_page` accessibility tree 在 10000 char 处截断，watcher 看不到末尾 disclaimer，以为还没生成
+
+主 Claude 误判后追加 "继续，请给完整 P0/P1/P2" 让 Pro 又重写一轮。第二个 watcher 用 `read_page max_chars: 30000` 判断：
+- 累计 540s 后又误判 INCOMPLETE——同样是 accessibility tree 截断，仍然看不到 footer
+
+最后主 Claude **直接调 `get_page_text` 一次性拉全文**才发现两轮都已经完整写完。
+
+**根因 + 教训**：
+- `read_page` accessibility tree 总会受 `max_chars` 限制。长 Pro review（rust-silk 那次正文约 8000 字，codex-asr 两轮约 30000 字）一定截断
+- 截断后 watcher 看不到末尾的"ChatGPT 也可能会犯错" disclaimer，错误判定"还在生成"
+- **正解**：完成度判断改用 `get_page_text`（拉 `<main>` 元素全文，无截断），只在需要找按钮 ref 时才 `read_page`
+- 这次教训直接驱动了本文档"工作循环"部分的重写
