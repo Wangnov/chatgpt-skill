@@ -2,6 +2,25 @@
 
 按 [Keep a Changelog](https://keepachangelog.com/) 格式记录，本项目遵循语义化版本（pre-1.0 阶段）。
 
+## [v0.6] - 2026-05-25
+
+### Added
+- **Deep Research Pull 模式**——跨小时任务的正解：主 Claude 提交后**不 spawn watcher**，直接报 conversation URL，用户回来（哪怕新 session）主动取。`SKILL.md` 第 5 节"异步等待"加 pull 模式段
+- `examples/deep-research-trigger.md` 完全重写：pull 模式操作步骤、6 种 DR 特有 UI 状态信号清单、跨小时任务的安全做法
+
+### Discovered
+- **DR 提交后不立刻跑**——会先弹研究计划确认卡（5 步 todo + N 秒倒计时 + 编辑/取消/开始）。watcher 模式会卡在 NEEDS_USER_INPUT
+- **DR 模式激活的视觉信号**：composer placeholder 变 "获取详细报告"，下方出现 `+/深度研究/应用/站点/Pro` 专属控件
+- **DR 完成判定**：5 步 checkbox 全部 ✓ + 报告正文出现（不再是"思考中"+disclaimer）
+- **DR 跑起来后"开始"按钮变"更新"**——用户可中途调整研究计划
+
+### Verified
+- Pull 模式提交一个 DR 任务（2026 年 agentic browsing 工具横向对比）
+- URL: `https://chatgpt.com/c/6a142e3d-a7a0-83ea-bf11-2f64484f4635`
+- 主 Claude 报 URL 后立刻撤，不挂 watcher——验证用户跨 session 取回链路（待用户回来时完成）
+
+---
+
 ## [v0.5] - 2026-05-25
 
 ### Added
