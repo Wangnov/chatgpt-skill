@@ -63,7 +63,7 @@
 
 ## 收到唤醒通知后做什么
 
-Claude Code 把 background bash 的 stdout 作为系统消息交付给主 LLM。看到 `WAKE chatgpt-web-delegate` 字样后：
+Claude Code 把 background bash 的 stdout 作为系统消息交付给主 LLM。看到 `WAKE chatgpt-skill` 字样后：
 
 ```
 1. 用 claude-in-chrome navigate 重新打开 conversation URL（即使当前 tab 已经在这个 URL）

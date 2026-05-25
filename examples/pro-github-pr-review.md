@@ -49,7 +49,7 @@
   - 总体推荐（哪些可合并、哪些要改、哪些要拖）
   - 逐 PR 评估表格
   - Pro 找到的具体代码问题（行号、错误类型）
-  - **建议长 review 落盘到 `.chatgpt-web-delegate/results/pr-review-<repo>-<pr>-<date>.md`**，给用户文件路径
+  - **建议长 review 落盘到 `.chatgpt-skill/results/pr-review-<repo>-<pr>-<date>.md`**，给用户文件路径
   - 保留所有 github.com source link（行内引用通常跳到具体文件 line）
 
 ## 容易踩的坑

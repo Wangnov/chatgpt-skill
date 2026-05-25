@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# chatgpt-web-delegate 心跳脚本
+# chatgpt-skill 心跳脚本
 #
 # 路径 A 模型：脚本只当闹钟。看 ChatGPT 页面的活由主 LLM 用 claude-in-chrome MCP 完成。
 # 这里不碰浏览器、不读 DOM、不存 session。
@@ -29,7 +29,7 @@ fi
 sleep "$SECONDS_TO_WAIT"
 
 cat <<EOF
-WAKE chatgpt-web-delegate
+WAKE chatgpt-skill
 url=$CONVERSATION_URL
 waited_seconds=$SECONDS_TO_WAIT
 note=$NOTE

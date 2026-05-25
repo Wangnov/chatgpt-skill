@@ -38,7 +38,7 @@
 - Watcher 完成时返回 DR 报告全文
 - 主 Claude 呈现：
   - 报告通常很长，且含大量 source link
-  - **建议落盘到 `.chatgpt-web-delegate/results/<task-name>-<date>.md`**（用户授权后），给用户文件路径而不是把整篇贴回主对话窗口
+  - **建议落盘到 `.chatgpt-skill/results/<task-name>-<date>.md`**（用户授权后），给用户文件路径而不是把整篇贴回主对话窗口
   - 如果 watcher 状态是 TIMEOUT（45 分钟还没完）→ 给当前可见内容 + 问用户要不要再 spawn 一个 watcher 继续等
 
 ## 容易踩的坑

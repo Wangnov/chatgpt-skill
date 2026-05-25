@@ -46,7 +46,7 @@
 - 主 Claude 呈现给用户：
   - 项目名、conversation URL（含项目路径）、思考时间、watcher 累计等待
   - **项目知识库引用迹象**——是否真的引用了知识库文件（YES/NO + 文件名）
-  - 完整回答（Pro 在项目里经常给非常长的结构化输出，建议落盘到 `.chatgpt-web-delegate/results/<project>-<topic>-<date>.md` 给路径而不是直接贴回主对话）
+  - 完整回答（Pro 在项目里经常给非常长的结构化输出，建议落盘到 `.chatgpt-skill/results/<project>-<topic>-<date>.md` 给路径而不是直接贴回主对话）
 
 ## 容易踩的坑
 
