@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex ChatGPT Skill"
+  short_description: "Codex Chrome bridge to ChatGPT web"
+  default_prompt: "Use $codex-chatgpt-skill to ask ChatGPT Pro for a second opinion."
