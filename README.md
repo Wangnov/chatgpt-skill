@@ -45,7 +45,7 @@ Claude 主进程会：
 | 信任 LLM | 200 行 SKILL.md 主指令 + 按需 reference，不堆规则 |
 | 异步原生 | Background Haiku watcher subagent，主 Sonnet 不被打扰 |
 | 安全优先 | 不替用户授权 OAuth / 不绕 CAPTCHA / 不存 session / 破坏性操作必须用户确认 |
-| 文件上传暂不可用 | Claude Code MCP 桥接 bug [#31210](https://github.com/anthropics/claude-code/issues/31210)，需要用户在浏览器里手动上传 |
+| 文件上传分 host | **Claude Code 永久不可用**（session id 不是 `local_*`，过不了 Claude app 的 `validateLocalFileAccess` 第一关）；**Claude Cowork** 可用但路径限沙盒。Claude Code 用户需要自己在浏览器里手动上传。详见 SKILL.md 第 3 节 |
 
 详细设计见 [SKILL.md](SKILL.md)。
 
@@ -75,7 +75,7 @@ examples/                      # 5 个端到端实测场景
 - ✅ Pro + DSE 数学项目知识库（21m 5s，watcher 累计 19 分钟）
 - ✅ 创建/重命名/分享/归档/取消归档/删除项目和对话
 - ✅ 数据管理 / Memory 管理 / 库管理
-- ❌ 文件上传（待 Anthropic 修 [#31210](https://github.com/anthropics/claude-code/issues/31210)）
+- ❌ 文件上传（在 Claude Code 里永久不可用 — 不是 bug 是产品边界；要用需切到 Claude Cowork）
 
 ## License
 

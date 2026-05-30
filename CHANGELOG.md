@@ -2,6 +2,23 @@
 
 按 [Keep a Changelog](https://keepachangelog.com/) 格式记录，本项目遵循语义化版本（pre-1.0 阶段）。
 
+## [v0.7.1] - 2026-05-31
+
+### Changed
+- **file_upload 根因更正**（用户 codex 反编译 Claude app 发现）：之前以为是 [#31210](https://github.com/anthropics/claude-code/issues/31210) "等 Anthropic 修就好的 bug"，**实际是产品边界**——`validateLocalFileAccess` 第一关要求 session id 以 `local_` 开头。Claude Code session 是普通 UUID（`c9cf...`），**永久过不了**这关。Claude Cowork（local-agent-mode）的 session id 是 `local_*` 才能用
+- SKILL.md 第 3 节"文件 / 图片上传" 整段重写为 host 分级表（Claude Code ❌ / Claude Cowork ✅ 限沙盒 / 其他 agent 未测）
+- `references/manage-actions.md` 两处旧 `#31210` 引用改为 host 分级描述
+- README.md 同步更新
+
+### Fixed
+- 错误信息 `only files the user has shared with this session can be uploaded` 是误导性的——它不区分"session 类型不对" vs "路径没共享"。文档说明了真实根因
+
+### Verified
+- 用户在 Claude Cowork 实测上传文件**成功**（local-agent-mode session 路径里的文件）
+- Claude Code 里所有路径都失败（cwd / Downloads / @-path / session tmp dir 全部撞同一个错）
+
+---
+
 ## [v0.7] - 2026-05-25
 
 ### Added

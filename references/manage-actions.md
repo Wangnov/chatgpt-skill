@@ -105,7 +105,7 @@ URL 模式：`/g/g-p-<project-uuid>/project` 或带 slug `/g/g-p-<project-uuid>-
 - URL: `?tab=sources`
 - 列表：所有项目附件（PDF / docx / 等）
 - 顶部"+ 添加源"
-- 添加源 = file_upload → **撞 [#31210](https://github.com/anthropics/claude-code/issues/31210) bug，主 Claude 无法替用户上传本地文件，必须用户自己拖**
+- 添加源 = file_upload → 在 **Claude Code 里永久不可用**（session id 不是 `local_*`，过不了 Claude app 的 `validateLocalFileAccess` 第一关，详见 SKILL.md 第 3 节）。**Claude Code 用户必须自己拖**；Claude Cowork 用户可以用，但路径限于 local-agent-mode session 沙盒
 
 ### 项目侧栏 `...` 菜单 3 项
 
@@ -275,5 +275,5 @@ ChatGPT 原生定时任务的全局列表页。空状态："启动安排的任�
 4. **删除对话不自动清 Memory**——删完后提醒用户去个性化 → 记忆 [管理] 单独清
 5. **个性化里"你的详情"和"记忆"含用户隐私**——绝不导出/复制到外部对话窗口/落盘到非用户授权文件
 6. **任何破坏性操作（删/归档全部/全部删除/撤销分享）执行前必须用户口头确认**——不是看到红色按钮就能直接点
-7. **file_upload bug** ([#31210](https://github.com/anthropics/claude-code/issues/31210)) 影响所有上传入口（composer / library / 项目知识库）——主 Claude 无法替用户上传任意本地文件
+7. **file_upload 在 Claude Code 里永久不可用**（session id 必须以 `local_` 开头才能过 `validateLocalFileAccess`，详见 SKILL.md 第 3 节）——主 Claude 在 Claude Code session 里无法替用户上传任意本地文件。Claude Cowork（local-agent-mode）才能用，路径限沙盒
 8. **OAuth / connector 授权**：主 Claude 绝不替用户授权或撤销 connector（参见 [error-and-limits.md](error-and-limits.md) 第 5 节）

@@ -58,9 +58,26 @@ description: 通过用户现有的、已登录的 ChatGPT 网页会话委托任�
 - **不要根据模型名推断 app 可用性**。Pro 也可以用 apps（已经在 2026-05 验证过用 Pro + @Google 云端硬盘 列文件、Pro + @GitHub 评估 PR 是否可合并）。直接 `@app` 试 → 看到 app chip / 检索卡片 / source 引用就成功
 - 如果 app 没连接或要 OAuth → **停下来让用户去授权**（参见 [references/error-and-limits.md](references/error-and-limits.md) 第 5 节），绝不替用户点同意
 
-#### 文件 / 图片上传 — 暂不可用
+#### 文件 / 图片上传 — Claude Code 永久不可用，Claude Cowork 才行
 
-Claude Code MCP 桥接 bug（[#31210](https://github.com/anthropics/claude-code/issues/31210)），`file_upload` 调用任意本地路径都被白名单拒绝。**让用户自己在浏览器里上传**（点 `+` 或拖图进 composer），主 Claude 接管后续：`read_page` 验证 chip 出现 → 写 prompt → send → spawn watcher。
+**根因**（2026-05-31 codex 反编译 Claude app 确认）：`file_upload` 的第一关 `validateLocalFileAccess` 要求 **session id 必须以 `local_` 开头**。
+
+| Host | session id 模式 | `file_upload` |
+|---|---|---|
+| **Claude Code**（`~/.claude/projects/...`） | `c9cf...` / 普通 UUID | ❌ **第一关就被拒，路径无关** |
+| **Claude Cowork**（local-agent-mode）| `local_c3ecc0cb-...` | ✅ 但路径范围窄（见下） |
+| 其他 agent（Cursor / Codex / ...）| 未测 | 看其 session 是否注入到 Claude app 验证模型 |
+
+**Claude Cowork 也不是任意路径都能传**——允许范围限于：
+- `~/Library/Application Support/Claude/local-agent-mode-sessions/.../local_<id>/uploads/`
+- `~/Library/Application Support/Claude/local-agent-mode-sessions/.../local_<id>/outputs/`
+- 用户在 Claude Desktop 设置里加进 `userSelectedFolders` 的目录
+
+错误信号 `only files the user has shared with this session can be uploaded` **是误导性的**——它不区分"session 类型不对" vs "路径没共享"，统一打这个错。GitHub Issue [#31210](https://github.com/anthropics/claude-code/issues/31210) 之前误以为是"等 Anthropic 修就好的 bug"，**实际是产品边界**。
+
+**Claude Code 用户的唯一可行方案**：让用户自己在浏览器里上传（点 `+` 或拖图进 composer），主 Claude 接管后续：`read_page` 验证 chip 出现 → 写 prompt → send → spawn watcher。
+
+**已证伪的 workaround（别再试）**：开启 Claude in Chrome 扩展的"允许访问文件网址"权限**不解锁**——那个权限控制 Chrome 扩展能不能读 `file://` URL，跟 Claude app 主进程的 `validateLocalFileAccess` 是两层。2026-05-31 实测确认。
 
 #### 产物下载 — 可用（跟上传方向相反，走浏览器原生通道）
 
