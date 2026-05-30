@@ -2,6 +2,23 @@
 
 按 [Keep a Changelog](https://keepachangelog.com/) 格式记录，本项目遵循语义化版本（pre-1.0 阶段）。
 
+## [Unreleased]
+
+### Added
+- 仓库改为双 Skill 分发：`claude-chatgpt-skill` 保留原 Claude Code + `claude-in-chrome` 实现，`codex-chatgpt-skill` 新增 Codex + Codex Chrome Extension 实现。
+- 两个 Skill 都新增 `agents/openai.yaml`，便于 `npx skills add --skill <name>` 精确安装。
+- Codex 版新增 `references/codex-chrome-runtime.md` 和 `references/codex-waiting.md`，描述 browser-client 接入、当前回合轮询、Pull 模式、file chooser 上传和下载处理。
+- Codex 版新增 `examples/file-upload-roundtrip.md` 和 `examples/deep-research-pull.md`，覆盖已实测的文件上传闭环和 Deep Research Pull 模式。
+
+### Changed
+- 根 README 改为双 Skill 安装说明，使用 `npx skills add Wangnov/chatgpt-skill --skill <name> --full-depth`。
+- Codex 版使用当前回合轮询和 Pull 模式，避免把 background Haiku watcher / Agent 调用模板误带进 Codex。
+
+### Verified
+- Codex Chrome Extension 在停掉其它 Chrome debugger 控制方后，可以复用用户已登录的 ChatGPT tab，读取页面结构和截图，展开模型菜单和 app 菜单，上传文件，提交带附件 prompt，等待完成并读取回答。
+
+---
+
 ## [v0.7.3] - 2026-05-31
 
 ### Changed

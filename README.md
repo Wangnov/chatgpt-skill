@@ -5,8 +5,8 @@
 <h1 align="center">chatgpt-skill</h1>
 
 <p align="center">
-  <b>给 Claude Code 用的 ChatGPT.com 操作手册。</b><br>
-  让 Claude Code 复用你已经登录的 ChatGPT 订阅 —— 不复制 cookie、不存 session、不要 API key。
+  <b>给 Claude Code 和 Codex 用的 ChatGPT.com 操作手册。</b><br>
+  让代码执行器复用你已经登录的 ChatGPT 订阅 —— 不复制 cookie、不存 session、不要 API key。
 </p>
 
 <p align="center">
@@ -14,8 +14,8 @@
   <a href="https://www.npmjs.com/package/skills"><img src="https://img.shields.io/badge/install-npx%20skills%20add-38bdf8?logo=npm&logoColor=white" alt="Install via npx skills add"></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/Wangnov/chatgpt-skill?color=2ea44f" alt="License"></a>
   <img src="https://img.shields.io/badge/platform-macOS-555?logo=apple&logoColor=white" alt="Platform">
-  <img src="https://img.shields.io/badge/primary%20host-Claude%20Code-orange" alt="Primary host">
-  <img src="https://img.shields.io/badge/browser%20MCP-claude--in--chrome-9b6cff" alt="claude-in-chrome MCP">
+  <img src="https://img.shields.io/badge/hosts-Claude%20Code%20%7C%20Codex-orange" alt="Hosts">
+  <img src="https://img.shields.io/badge/browser-claude--in--chrome%20%7C%20Codex%20Chrome-9b6cff" alt="Browser bridges">
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
 </p>
 
 <p align="center">
-  Watcher subagent · Pull-mode 跨小时任务 · 聊天记录 3 档落盘 · ChatGPT 管理面（删 / 归档 / Memory）· 安全优先
+  双 Skill 分发 · Claude watcher · Codex Chrome 上传 · Pull-mode 跨小时任务 · 聊天记录 3 档落盘 · 安全优先
 </p>
 
 ---
@@ -32,17 +32,23 @@
 
 ## 🇨🇳 中文
 
-`chatgpt-skill` 是一个**手册式 Skill** —— 不是 CLI、不是 wrapper，而是一份给 **Claude Code** 看的操作手册。装上后，Claude Code **复用你已经登录的 ChatGPT 网页**来完成咨询委托、深度研究、对话管理、内容落盘。
+`chatgpt-skill` 是一个**手册式 Skill 集合** —— 不是 CLI、不是 wrapper，而是两份给不同执行器看的 ChatGPT.com 操作手册。
 
-整套机制**强制走 [`claude-in-chrome` MCP](https://chromewebstore.google.com/)** —— Claude Code 像一个会用浏览器的人一样操作 ChatGPT.com，**不发起独立的自动化浏览器**（禁 Playwright / Puppeteer / `computer-use`）、**不接触 cookie / session / API key**。
+| Skill | 适用执行器 | 浏览器接入 |
+|---|---|---|
+| `claude-chatgpt-skill` | Claude Code | `claude-in-chrome` MCP |
+| `codex-chatgpt-skill` | Codex | Codex Chrome Extension |
 
-> **Host 范围**：所有操作指令、watcher 异步等待、所有实测都在 **Claude Code** 上完成。Skill 文件本身是通用 Markdown，理论上其他能加载 Markdown skill 的 MCP host（Codex CLI、Cursor、Cline 等）也能读到指令，但 watcher 用的是 Claude Code 自家的 `Agent({ run_in_background: true, … })` API —— 其他 host 需要自己提供等价的 background-subagent 模式才能跑异步等待。当前版本未针对其他 host 做适配验证。
+共同目标：复用你已经登录的 ChatGPT 网页来完成咨询委托、深度研究、对话管理、内容落盘。两条接入都**不发起独立浏览器 profile**、**不接触 cookie / session / API key**。
+
+> **Host 范围**：Claude 版保留原始 `claude-in-chrome` MCP + watcher 异步等待；Codex 版使用 Codex Chrome Extension + 当前回合轮询 / Pull 模式。两版按 `npx skills add --skill <name>` 分开安装。
 
 ### ✨ 特性
 
 - 📦 **零依赖** —— 一份 Markdown Skill，`npx skills add` 一键装好
 - 🌐 **复用浏览器登录态** —— 你在 Chrome 已登录的 ChatGPT 订阅 + 已连接的 Apps（Drive / GitHub / Gmail / Linear / Canva），全部直接可用
-- ⚡ **Watcher subagent 异步等待** —— 主 Claude `Agent({ run_in_background: true, model: 'haiku' })` 起一个后台 watcher 轮询页面，主 Sonnet 全程沉默，watcher 完成才通知（实测 21 分钟 Pro 任务，**主 Sonnet 0 次被打扰**，watcher 消耗 ~86k Haiku token）
+- ⚡ **Claude watcher 异步等待** —— 主 Claude `Agent({ run_in_background: true, model: 'haiku' })` 起一个后台 watcher 轮询页面，主 Sonnet 全程沉默，watcher 完成才通知（实测 21 分钟 Pro 任务，**主 Sonnet 0 次被打扰**，watcher 消耗 ~86k Haiku token）
+- 🧩 **Codex Chrome Extension 适配** —— Codex 版已实测复用 ChatGPT tab、读取页面、上传文件、发送带附件 prompt、等待完成并取回回答
 - 🐢 **Pull 模式跨小时任务** —— Deep Research 跑几小时是常态，**不挂 watcher**：主 Claude 提交后直接报 conversation URL 走人，用户回来（哪怕新 session、新设备）说一声"看那个 DR" 即可取回
 - 💾 **聊天记录落盘** —— 3 档分流：普通 message 走 `get_page_text` + Markdown；DR / Canvas artifact 走 artifact 自带的"导出到 Markdown"；图片走"分享此图片→下载"
 - 🛠️ **ChatGPT 管理面全覆盖** —— 对话级（删 / 归档 / 分享 / 置顶 / 移项目）、项目级（创建 / 指令 / 知识库 / 删除）、Memory、库、共享链接撤销，每个操作都标注了 GUI 易踩的坑
@@ -51,23 +57,31 @@
 
 ### 🚀 快速开始
 
-**前置依赖**：
-
-- 装好 Claude Code（[官方安装文档](https://docs.anthropic.com/claude/docs/claude-code)）
-- 装好 [`claude-in-chrome` Chrome 扩展](https://chromewebstore.google.com/) 并把它的 MCP server 连到 Claude Code
-- Chrome 浏览器登录任意 ChatGPT 计划（Plus / Pro / Enterprise 都行）
-
-**一行装好**：
+**查看可安装 Skill**：
 
 ```bash
-# 装给 Claude Code（推荐，主要测试 host）
-npx skills add Wangnov/chatgpt-skill -g -a claude-code -y
-
-# 或者装到通用 ~/.agents/skills/，让任何支持 Markdown skill 的 host 都能加载
-npx skills add Wangnov/chatgpt-skill -g -a '*' -y
+npx skills add Wangnov/chatgpt-skill --list --full-depth
 ```
 
-**用法** —— 直接对 Claude Code 说：
+**安装 Claude Code 版**：
+
+```bash
+npx skills add Wangnov/chatgpt-skill \
+  --skill claude-chatgpt-skill \
+  --agent claude-code \
+  --full-depth
+```
+
+**安装 Codex 版**：
+
+```bash
+npx skills add Wangnov/chatgpt-skill \
+  --skill codex-chatgpt-skill \
+  --agent codex \
+  --full-depth
+```
+
+**用法** —— 直接对 Claude Code 或 Codex 说：
 
 ```
 "问问 ChatGPT Pro 怎么看这件事"
@@ -80,7 +94,7 @@ npx skills add Wangnov/chatgpt-skill -g -a '*' -y
 "清掉我的 Memory"
 ```
 
-Claude Code 自动按 Skill 手册流程操作 ChatGPT 网页 + 异步等待 + 取回结果。
+执行器会按对应 Skill 手册流程操作 ChatGPT 网页 + 等待 + 取回结果。
 
 ### 🧠 模型矩阵
 
@@ -98,34 +112,32 @@ Claude Code 自动按 Skill 手册流程操作 ChatGPT 网页 + 异步等待 + �
 1. **手册式而非工程式** —— 写"看到 X 就做 Y"，不写"点击 button[aria-label='Send']"。UI 漂移时 LLM 自适应
 2. **信任 LLM 当场判断** —— 不堆 if-else 状态机，给原则不给脚本
 3. **异步原生** —— Watcher subagent + Pull 模式两套，分别对应"几分钟"和"几小时"两个时间尺度
-4. **安全优先** —— 8 条安全总则（详见 [`references/manage-actions.md`](references/manage-actions.md) 第 8 节）
+4. **安全优先** —— 8 条安全总则（详见 [`claude-chatgpt-skill/references/manage-actions.md`](claude-chatgpt-skill/references/manage-actions.md) 和 Codex 版同名 reference）
 5. **失败做减法** —— *failed run 比 success run 更值得写进文档*。3 次实测 watcher 误判直接驱动了 v0.6 用 `get_page_text` 取代 `read_page` 的修复
 
 ### 🗂️ 项目结构
 
 ```
-SKILL.md                       # 主指令（Claude Code 入口）
-scripts/heartbeat.sh           # fallback：纯 shell heartbeat（非 Agent 环境用）
-references/
-  watcher-subagent.md          # 主推异步方案 + NEEDS_USER_INPUT + 失败教训
-  claude-code-async.md         # heartbeat fallback 文档
-  error-and-limits.md          # 10 种错误/限流场景的可见信号与处理
-  manage-actions.md            # 对话/项目/Memory/库 管理操作手册（235 行）
-  save-conversation.md         # 聊天记录落盘 3 档分流（240 行）
-examples/                      # 6 个端到端实测场景
-  auto-google-drive-list.md
-  thinking-github-unread-issues.md
-  deep-research-trigger.md
-  pro-github-pr-review.md
-  project-context-consult.md
-  save-conversation.md
+claude-chatgpt-skill/
+  SKILL.md
+  agents/openai.yaml
+  scripts/heartbeat.sh
+  references/
+  examples/
+
+codex-chatgpt-skill/
+  SKILL.md
+  agents/openai.yaml
+  references/
+  examples/
+
 assets/                        # 项目视觉资产（logo / banner）
 CHANGELOG.md                   # v0.2 → v0.7.3 完整演进
 ```
 
 ### ✅ 实测覆盖
 
-全部实测均在 **Claude Code + claude-in-chrome MCP** 上完成（2026-05）：
+Claude 版实测均在 **Claude Code + claude-in-chrome MCP** 上完成；Codex 版已完成 Chrome smoke test（2026-05-31）：
 
 | 场景 | 模型 | 实测结果 |
 |---|---|---|
@@ -140,6 +152,9 @@ CHANGELOG.md                   # v0.2 → v0.7.3 完整演进
 | ChatGPT 给的 PDF 链接下载 | — | 浏览器原生通道，~/Downloads/ |
 | 聊天记录档 A 落盘（19.5KB / 399 行 .md）| — | YAML frontmatter + 完整对话历史 |
 | 删除对话 / 归档 / 项目创建 / Memory 管理 / 共享链接撤销 | — | 全部端到端跑通 |
+| Codex 复用 ChatGPT tab + 页面读取 | Instant | `domSnapshot` / `<main>` 文本 / screenshot / visible DOM 全部可用 |
+| Codex 文件上传闭环 | Instant + file chooser | 上传本地 txt → ChatGPT 读取第一行 → Codex 取回回答 |
+| Codex 菜单控制 | — | 模型菜单、文件菜单、app 菜单、草稿附件移除均已跑通 |
 
 ### ⚠️ 已知限制
 
@@ -155,15 +170,16 @@ CHANGELOG.md                   # v0.2 → v0.7.3 完整演进
 |---|---|---|
 | **Claude Code** | 普通 UUID（`c9cf...`）| ❌ **第一关就拒，让用户自己拖文件到浏览器** |
 | **Claude Cowork**（local-agent-mode）| `local_*` | ✅ 但路径限 `local-agent-mode-sessions/.../uploads/` 或 `userSelectedFolders` |
-| 其他 host（Codex CLI / Cursor / …）| 未测 | 取决于其 session 是否会过 Claude app 的 `validateLocalFileAccess`；多数应该不依赖这个验证模型 |
+| **Codex + Codex Chrome Extension** | Chrome file chooser | ✅ 已实测 `添加文件等` → `添加照片和文件` → `setFiles(...)` |
+| 其他 host（Cursor / Cline / …）| 未测 | 取决于各自浏览器接入和文件选择器能力 |
 
-**Claude Code 唯一可行方案**：让用户自己在浏览器里上传（点 `+` 或拖图进 composer），主 Claude 接管后续：`read_page` 验证 chip 出现 → 写 prompt → send → spawn watcher。
+**Claude Code 唯一可行方案**：让用户自己在浏览器里上传（点 `+` 或拖图进 composer），主 Claude 接管后续：`read_page` 验证 chip 出现 → 写 prompt → send → spawn watcher。Codex 版走 Codex Chrome Extension 的原生 file chooser，不受 Claude app 的 session id 限制。
 
 详细诊断见 [CHANGELOG.md](CHANGELOG.md) v0.7.1 章节。
 
 #### 2. Watcher 异步等待是 Claude Code 专属
 
-Watcher 模式用的是 `Agent({ run_in_background: true, subagent_type: 'general-purpose', model: 'haiku', prompt: ... })`，这是 Claude Code 的 Agent tool API。其他 MCP host（Codex CLI、Cursor 等）装上这个 Skill 后，**operational 流程读得到，但 watcher 段需要 host 各自的 background-subagent 等价物**。当前版本未对其他 host 做适配验证 —— 欢迎 PR。
+Watcher 模式用的是 `Agent({ run_in_background: true, subagent_type: 'general-purpose', model: 'haiku', prompt: ... })`，这是 Claude Code 的 Agent tool API。Codex 版不使用 watcher，改为当前回合轮询和 Pull 模式。其他 MCP host（Cursor 等）装上这个 Skill 后，**operational 流程读得到，但 watcher 段需要 host 各自的 background-subagent 等价物**。
 
 ### 📜 Changelog
 
@@ -190,17 +206,23 @@ MIT © 2026 wangnov
 
 ## 🇬🇧 English
 
-`chatgpt-skill` is a **manual-style Skill** — not a CLI, not a wrapper — a single Markdown playbook that **Claude Code** loads. Once installed, Claude Code **reuses your already-logged-in ChatGPT subscription** to delegate consultations, run deep research, manage conversations, and save outputs to disk.
+`chatgpt-skill` is a **manual-style Skill collection** — not a CLI, not a wrapper — with two installable playbooks for operating ChatGPT.com from your coding agent.
 
-Everything runs through the **[`claude-in-chrome` MCP](https://chromewebstore.google.com/)** (mandatory — no Playwright / Puppeteer / `computer-use` fallback). Claude Code operates ChatGPT.com like a human would — **no headless browser**, **no cookie / session / API key extraction**.
+| Skill | Host | Browser bridge |
+|---|---|---|
+| `claude-chatgpt-skill` | Claude Code | `claude-in-chrome` MCP |
+| `codex-chatgpt-skill` | Codex | Codex Chrome Extension |
 
-> **Host scope**: All operational instructions, watcher async-wait, and all field-tested scenarios are on **Claude Code**. The Skill file itself is plain Markdown, so any MCP host that can load Markdown skills (Codex CLI, Cursor, Cline, …) will see the playbook. But the watcher relies on Claude Code's own `Agent({ run_in_background: true, … })` API — other hosts need to provide their own equivalent background-subagent primitive to run the async-wait pattern. Other-host adaptation is not currently validated.
+Both variants reuse your already-logged-in ChatGPT subscription for consultations, deep research, conversation management, and saving outputs to disk. They do **not** create a separate browser profile, extract cookies, persist sessions, or ask for an API key.
+
+> **Host scope**: the Claude variant keeps the original `claude-in-chrome` + watcher flow. The Codex variant uses Codex Chrome Extension, current-turn polling, and Pull mode instead of Claude Code's background `Agent(...)` API.
 
 ### ✨ Features
 
-- 📦 **Zero dependencies** — a single Markdown skill, install with `npx skills add`
+- 📦 **Zero dependencies** — Markdown skills, install with `npx skills add`
 - 🌐 **Reuse browser login** — your already-signed-in Chrome ChatGPT + connected Apps (Drive / GitHub / Gmail / Linear / Canva) all work out of the box
-- ⚡ **Watcher subagent for async waits** — main Claude spawns a background Haiku watcher (`Agent({ run_in_background: true, model: 'haiku' })`) that polls the page silently; main Sonnet stays quiet until the watcher returns (verified on a 21-minute Pro task: **main Sonnet interrupted 0 times**, watcher used ~86k Haiku tokens)
+- ⚡ **Claude watcher for async waits** — main Claude spawns a background Haiku watcher (`Agent({ run_in_background: true, model: 'haiku' })`) that polls the page silently; main Sonnet stays quiet until the watcher returns
+- 🧩 **Codex Chrome support** — the Codex variant can claim ChatGPT tabs, read the page, upload files, submit attached prompts, wait for completion, and retrieve the answer
 - 🐢 **Pull mode for hours-long tasks** — Deep Research routinely runs hours; the main agent submits, hands you the URL, and walks away. Come back later (new session, new device) and just say *"check that DR"*
 - 💾 **Conversation save-to-disk** — 3 tiers: plain chat via `get_page_text` + Markdown; DR / Canvas artifacts via the artifact's built-in export; images via "share-image → download"
 - 🛠️ **Full ChatGPT management surface** — conversation level (delete / archive / share / pin / move-to-project), project level (create / instructions / sources / delete), Memory, library, share-link revocation, with every GUI footgun documented
@@ -210,14 +232,23 @@ Everything runs through the **[`claude-in-chrome` MCP](https://chromewebstore.go
 ### 🚀 Quick start
 
 ```bash
-# Claude Code only (recommended — this is the tested host)
-npx skills add Wangnov/chatgpt-skill -g -a claude-code -y
+# List installable skills
+npx skills add Wangnov/chatgpt-skill --list --full-depth
 
-# Or install globally so any agent loading ~/.agents/skills/ can read the playbook
-npx skills add Wangnov/chatgpt-skill -g -a '*' -y
+# Install the Claude Code variant
+npx skills add Wangnov/chatgpt-skill \
+  --skill claude-chatgpt-skill \
+  --agent claude-code \
+  --full-depth
+
+# Install the Codex variant
+npx skills add Wangnov/chatgpt-skill \
+  --skill codex-chatgpt-skill \
+  --agent codex \
+  --full-depth
 ```
 
-Then just talk to Claude Code:
+Then just talk to Claude Code or Codex:
 
 ```
 "Ask ChatGPT Pro to review this PR"
@@ -240,7 +271,7 @@ Model names drift (5.5 → 5.6 → "进阶专业" etc.). The skill matches on vi
 
 ### ⚠️ Known limitations
 
-#### 1. `file_upload` is permanently unavailable in Claude Code
+#### 1. `file_upload` is permanently unavailable in Claude Code, but works in Codex Chrome
 
 Root cause confirmed 2026-05-31 by reverse-engineering Claude app with codex:
 
@@ -248,11 +279,11 @@ Root cause confirmed 2026-05-31 by reverse-engineering Claude app with codex:
 - Claude Code sessions are plain UUIDs (`c9cf...`) and will **never** pass this gate — this is a **product boundary, not a bug**
 - The error message `only files the user has shared with this session can be uploaded` is **misleading**: it does not distinguish "wrong session type" from "path not shared"
 
-To upload local files into ChatGPT, you must either (a) have the user manually drag/drop in the browser, or (b) use **Claude Cowork** (local-agent-mode, `local_*` sessions). Other MCP hosts (Codex CLI, Cursor, …) likely don't pass through Claude app's `validateLocalFileAccess` at all, but this is untested. Full diagnosis in [CHANGELOG.md](CHANGELOG.md) v0.7.1.
+For Claude Code, have the user manually drag/drop in the browser, or use **Claude Cowork** (local-agent-mode, `local_*` sessions). The Codex variant uses the Codex Chrome Extension file chooser flow and has been smoke-tested successfully. Full Claude diagnosis is in [CHANGELOG.md](CHANGELOG.md) v0.7.1.
 
 #### 2. Watcher async-wait is Claude-Code-specific
 
-The watcher pattern uses Claude Code's `Agent({ run_in_background: true, subagent_type: 'general-purpose', model: 'haiku', … })` API. Other MCP hosts will read the operational playbook fine, but the watcher section requires each host to supply its own background-subagent equivalent. Not currently validated on other hosts — PRs welcome.
+The watcher pattern uses Claude Code's `Agent({ run_in_background: true, subagent_type: 'general-purpose', model: 'haiku', … })` API. The Codex variant does not use that watcher; it uses current-turn polling and Pull mode. Other MCP hosts need their own background-subagent equivalent if they want watcher-style async waits.
 
 ### 📄 License
 
