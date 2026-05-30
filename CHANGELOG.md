@@ -2,6 +2,28 @@
 
 按 [Keep a Changelog](https://keepachangelog.com/) 格式记录，本项目遵循语义化版本（pre-1.0 阶段）。
 
+## [v0.7.3] - 2026-05-31
+
+### Changed
+- **Logo / banner 完全重设计** —— 主题从 v0.7.2 的抽象"黑洞星系"改为**直白表达项目内核：Codex 和 Claude Code 两个智能体"操控" ChatGPT**：
+  - `assets/logo.png`（1024×1024）—— 两个光泽 3D 机器人吉祥物合捧中央 ChatGPT 球：**左侧蓝紫机器人身上带终端 `>_`（Codex）**，**右侧橙色机器人身上带像素格（Claude Code）**，中央深色球体是 ChatGPT 经典六瓣结。亲和 + 品牌辨识 + "操控"关系一眼可读
+  - `assets/banner.png`（2400×800）—— 横版故事场景：蓝紫 Codex 机器人在左、橙色 Claude Code 机器人在右，**两边各射出一束"命令粒子流"汇入中央 ChatGPT 球**；浅紫→浅橙柔和渐变底
+  - 出图流程：`gpt-image-2-skill`（Codex provider）先并发出 **10 个"操控"隐喻方向**（提线木偶 / 齿轮驱动 / 双光标点击 / 卫星指令 / 机器人合捧 / 双终端打命令 / 指挥棒 / 电路核心 / 瞄准三角 / 磁极转向）→ 选定"机器人合捧"方向 → 4 轮品牌化迭代 → 2K 定稿
+- **banner.svg 改用 CSS `@keyframes` 动画（不用 SMIL）**：GitHub 通过 `<img>` 加载 SVG 时 SMIL (`<animate>` / `<animateTransform>`) 渲染不稳定（很多浏览器/上下文不播放），CSS keyframes 才稳定。叠加动效：中央 ChatGPT 球**脉动光晕** + 两侧**命令粒子流向中心汇聚** + 背景浮游粒子。PNG 以 base64 JPEG 嵌进 SVG，单文件自洽
+- **README 内容更正** —— v0.7.2 README 高估了非 Claude Code host 的支持，本版按真相重写：
+  - 删掉 "Codex CLI 主推"、"Cursor / Cline / … ✅ 兼容" 这类**未实测的声明**
+  - `file_upload` 表里 "Claude Code / Codex CLI = ❌" 改成只标 Claude Code ❌，Codex CLI 标 "未测"（codex 不依赖 Claude app 的 `validateLocalFileAccess`）
+  - "整套机制走 claude-in-chrome MCP（或同等浏览器接入工具）" 改成 "**强制** 走 `claude-in-chrome`"，跟 SKILL.md 接入方式口径对齐
+  - "双主线 Host" 改成 "主要 host: Claude Code；Skill 文件是通用 Markdown 可被其他 host 加载，但 watcher 异步等待是 Claude Code 的 `Agent({run_in_background:true})` 专属 API"
+  - 新增 "已知限制 #2"：watcher 异步等待不是通用模式，其他 host 需各自适配 background-subagent 等价物
+  - badge 从 `hosts-Claude Code · Codex CLI · Cursor · Cline` 简化为 `primary host: Claude Code` + `browser MCP: claude-in-chrome`；banner alt text 同步改为机器人场景描述
+
+### Notes
+- SKILL.md / references / examples / scripts 与 v0.7.1 完全一致 —— 本版是**品牌视觉重设计 + 文档对齐**，不影响装机用户的实际能力
+- 如果未来真把 Codex CLI / Cursor 跑通了 watcher 等价物，再开 v0.8 加该 host 的专属指令分支
+
+---
+
 ## [v0.7.2] - 2026-05-31
 
 ### Added
