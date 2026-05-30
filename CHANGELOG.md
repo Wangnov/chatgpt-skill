@@ -2,6 +2,30 @@
 
 按 [Keep a Changelog](https://keepachangelog.com/) 格式记录，本项目遵循语义化版本（pre-1.0 阶段）。
 
+## [v0.7.2] - 2026-05-31
+
+### Added
+- **自制项目视觉资产**（用 `gpt-image-2-skill` + lobehub icons 生成）：
+  - `assets/logo.png`（1024×1024）—— 黑洞 + 双色螺旋臂的抽象宇宙图腾（蓝紫色 Codex 旋臂、橙色 Claude Code 旋臂围绕中央黑洞 ChatGPT）。前后 3 轮共 12 个备选，用户选了 H 方向（最具艺术感、最抽象）
+  - `assets/banner.png`（2400×800）—— 横版宇宙星云底图，黑洞居中 + 双色螺旋臂左右护法
+  - `assets/banner.svg`（77KB）—— **在 PNG 底图基础上叠加 SVG SMIL 动画**：脉动黑洞光晕（`<animate>` r 70→110）、4 条蓝紫/橙色椭圆轨道（`<animateTransform type="rotate">` 22s/26s/34s/40s 反向旋转）、6 个浮游粒子（cy + opacity 动画）。PNG 用 base64 嵌进 SVG，单文件自洽，GitHub 直接渲染
+- **README.md 完整双语重写**（对标 [wangnov/mailpilot](https://github.com/wangnov/mailpilot) 规格）：
+  - 顶部 banner.svg + h1 + tagline + 6 枚 badge（skill version / install / license / platform / hosts / zero credentials）
+  - 中英文双锚点导航
+  - 9 项特性 emoji 标题（零依赖 / 双主线 host / 浏览器复用 / watcher subagent / pull 模式 / 落盘 / 管理 / 安全 / 手册式）
+  - 模型矩阵表 + Host 兼容性表 + 验证场景表
+  - 项目结构树、设计原则、已知边界（file_upload 章节）、CHANGELOG pointer
+  - 末尾压缩版 English section 提供英文入口
+
+### Changed
+- `.gitignore` 由 `assets/` 整目录忽略改为 `assets/refs/` + `assets/tmp/`，让正式产物可入库、实验素材仍 ignore
+
+### Notes
+- 这是**纯品牌 / 文档**版本，Skill 主指令 / references / examples / scripts 与 v0.7.1 完全一致——不影响装机用户的实际能力
+- banner.svg 在 GitHub README 渲染时动画会自动播放（GitHub 支持 SVG SMIL）；本地 IDE 预览或 Markdown 渲染器若不支持 SMIL 会退化为静态首帧
+
+---
+
 ## [v0.7.1] - 2026-05-31
 
 ### Changed

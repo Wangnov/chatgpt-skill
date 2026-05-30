@@ -9,8 +9,9 @@
 *.swp
 *.swo
 
-# 本地实验 / 测试资源
-assets/
+# 本地实验 / 测试资源（保留 assets/ 顶层正式产物，只 ignore 子目录里的 refs/tmp）
+assets/refs/
+assets/tmp/
 results/
 
 # Skill runtime state（如果用户运行 Skill 时本地产物落到这）
