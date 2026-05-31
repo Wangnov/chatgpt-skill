@@ -164,8 +164,17 @@ Codex 版不假设后台子代理 watcher。按任务时长分流，详见 [refe
 
 显式触发：用户没说要存就不要自动写盘，避免污染硬盘。取回结果后用户回一句"存下来"才动手。
 
+## Examples
+
+[examples/](examples/) 里放 Codex 专属场景，不复用 Claude 版后台 watcher 模板：
+
+- `file-upload-roundtrip.md` — 上传本地文件、提交带附件 prompt、等待完成、取回回答（已实测）
+- `deep-research-pull.md` — 用 Codex 触发 Deep Research，并按 Pull 模式把 conversation URL 交给用户回来再取
+
+Claude 版更完整的历史场景仍在 `claude-chatgpt-skill/examples/`，只能借鉴任务意图；不要照搬其中的 `Agent({ run_in_background: true })` / watcher 做法。
+
 ## 迁移状态
 
-Claude 版的端到端 examples 保留在 `claude-chatgpt-skill/examples/`。Codex 版已有专属 examples：文件上传闭环见 `examples/file-upload-roundtrip.md`，Deep Research Pull 模式见 `examples/deep-research-pull.md`。不要把 Claude 的后台 Agent 模板误带进 Codex 版。
+Claude 版的端到端 examples 保留在 `claude-chatgpt-skill/examples/`。Codex 版先以运行时、安全流程和专属 examples 为准。
 
 当前烟测状态（2026-05-31）：停掉其它 Chrome debugger 控制方后，Codex Chrome Extension 可以复用用户已登录的 ChatGPT tab，读取页面结构和截图，展开模型菜单和 app 菜单，上传文件，提交带附件 prompt，等待完成并读取回答。已知阻塞形态仍是 `Detached while handling command` / `Unknown error`；出现时优先排查 Claude in Chrome、DevTools 或 `chrome-devtools-mcp` 等控制权冲突，详见 [references/codex-chrome-runtime.md](references/codex-chrome-runtime.md)。不要尝试 cookie / storage / 外部浏览器自动化旁路。
