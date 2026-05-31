@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claude ChatGPT Skill"
+  short_description: "Claude Code bridge to ChatGPT web"
+  default_prompt: "Use $claude-chatgpt-skill to ask ChatGPT Pro for a second opinion."

@@ -1,9 +1,9 @@
 ---
-name: chatgpt-skill
-description: 通过用户现有的、已登录的 ChatGPT 网页会话委托任务给任意 ChatGPT 模型，并管理对话/项目/Memory/库等，还能把对话/Artifact/图片落盘到本地。复用浏览器登录态、文件、连接器、项目。适合用户说"问问 ChatGPT / 让 GPT Pro 帮我想想 / 用 @Google 云端硬盘列一下 / 让 ChatGPT 做个 deep research / 删了这个对话 / 归档全部聊天 / 撤销那个分享 / 清掉 Memory / 创建一个项目 / 把这个对话存下来 / 下载那个 DR 报告 / 保留这张图片到本地"等。不发起独立的自动化浏览器，不接触 cookie/session。
+name: claude-chatgpt-skill
+description: 通过 Claude Code 和 claude-in-chrome MCP，复用用户现有的、已登录的 ChatGPT 网页会话，把任务委托给任意 ChatGPT 模型，并管理对话/项目/Memory/库等，还能把对话/Artifact/图片落盘到本地。适合用户说"问问 ChatGPT / 让 GPT Pro 帮我想想 / 用 @Google 云端硬盘列一下 / 让 ChatGPT 做个 deep research / 删了这个对话 / 归档全部聊天 / 撤销那个分享 / 清掉 Memory / 创建一个项目 / 把这个对话存下来 / 下载那个 DR 报告 / 保留这张图片到本地"等。不发起独立的自动化浏览器，不接触 cookie/session。
 ---
 
-# chatgpt-skill
+# claude-chatgpt-skill
 
 让 Claude Code 像一个会用浏览器的人一样，**复用用户已登录的 ChatGPT 网页**，把任务交给指定的 ChatGPT 模型（Instant / Thinking / Pro 等），等结果回来。
 
