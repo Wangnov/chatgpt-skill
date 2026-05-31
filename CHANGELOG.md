@@ -10,9 +10,11 @@
 - 两个 Skill 都新增 `agents/openai.yaml`，便于 `npx skills add -s <name> -a <agent>` 精确安装。
 - Codex 版新增 `references/codex-chrome-runtime.md` 和 `references/codex-waiting.md`，描述 browser-client 接入、当前回合轮询、Deep Research heartbeat、Pull fallback、file chooser 上传和下载处理。
 - Codex 版新增 `examples/file-upload-roundtrip.md` 和 `examples/deep-research-pull.md`，覆盖已实测的文件上传闭环和 Deep Research heartbeat / Pull fallback。
+- GitHub Release 附带 `claude-chatgpt-skill.skill` / `.zip` 包，供 Claude Cowork 手动拖拽上传。
 
 ### Changed
 - 根 README 改为双 Skill 安装说明，使用 skills v1.5.9 实测可用的 `-l`、`-g`、`-s`、`-a`、`-y` 参数，不再提不存在的 full-depth 参数。
+- README 明确 Claude Code 暂不可用 `file_upload`，Claude Cowork 可用但需要手动上传 Skill 包；`.zip` / `.skill` 包根目录必须包含 `SKILL.md`。
 - Codex 版使用当前回合轮询和 Deep Research heartbeat：先找 automation / wakeup 工具；没有 automation 时默认 spawn agent fallback；两者都不可用时才 Pull，避免把 Claude background Haiku watcher 模板误带进 Codex。
 
 ### Verified

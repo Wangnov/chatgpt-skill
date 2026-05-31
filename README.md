@@ -83,6 +83,15 @@ npx skills add Wangnov/chatgpt-skill \
   -y
 ```
 
+**安装 Claude Cowork 版**：
+
+Claude Cowork 目前需要手动上传 Skill 包，不走 `npx skills add`。到 [GitHub Releases（发布页）](https://github.com/Wangnov/chatgpt-skill/releases/latest) 下载 `claude-chatgpt-skill.skill`，然后在 Claude Cowork 里直接拖入 / 上传。
+
+Claude Cowork 的文件要求：
+
+- 单个 `.md` 文件必须在 YAML frontmatter（YAML 元数据头）里包含 Skill name 和 description
+- `.zip` 或 `.skill` 包必须在压缩包根目录包含 `SKILL.md`
+
 **用法** —— 直接对 Claude Code 或 Codex 说：
 
 ```
@@ -161,22 +170,27 @@ Claude 版实测均在 **Claude Code + claude-in-chrome MCP** 上完成；Codex 
 
 ### ⚠️ 已知限制
 
-#### 1. `file_upload` 在 Claude Code 里永久不可用
+#### 1. `file_upload` 在 Claude Code 里暂不可用；Claude Cowork 可用
 
 2026-05-31 用户用 codex 反编译 Claude app 确认了根因：
 
 - Claude app 的 `validateLocalFileAccess` 要求 **session id 以 `local_` 开头**才放行
-- Claude Code 的 session 是普通 UUID（`c9cf...`），**永远过不了这关** —— 不是 bug 是产品边界
+- Claude Code 的 session 是普通 UUID（`c9cf...`），目前过不了这关 —— 不是 bug 是产品边界；除非 Claude Code 后续改 session 模式，否则 `file_upload` 暂不可用
+- Claude Cowork 的 local-agent-mode 使用 `local_*` session，已确认可用，但仍受上传目录白名单约束
 - 错误信息 `only files the user has shared with this session can be uploaded` 是**误导性的** —— 它不区分"session 类型不对" vs "路径没共享"
 
 | Host | session 模式 | `file_upload` |
 |---|---|---|
-| **Claude Code** | 普通 UUID（`c9cf...`）| ❌ **第一关就拒，让用户自己拖文件到浏览器** |
-| **Claude Cowork**（local-agent-mode）| `local_*` | ✅ 但路径限 `local-agent-mode-sessions/.../uploads/` 或 `userSelectedFolders` |
+| **Claude Code** | 普通 UUID（`c9cf...`）| ❌ **暂不可用，让用户自己拖文件到浏览器** |
+| **Claude Cowork**（local-agent-mode）| `local_*` | ✅ 可用，但路径限 `local-agent-mode-sessions/.../uploads/` 或 `userSelectedFolders` |
 | **Codex + Codex Chrome Extension** | Chrome file chooser | ✅ 已实测 `添加文件等` → `添加照片和文件` → `setFiles(...)` |
 | 其他 host（Cursor / Cline / …）| 未测 | 取决于各自浏览器接入和文件选择器能力 |
 
-**Claude Code 唯一可行方案**：让用户自己在浏览器里上传（点 `+` 或拖图进 composer），主 Claude 接管后续：`read_page` 验证 chip 出现 → 写 prompt → send → spawn watcher。Codex 版走 Codex Chrome Extension 的原生 file chooser，不受 Claude app 的 session id 限制。
+**Claude Code 当前可行方案**：让用户自己在浏览器里上传（点 `+` 或拖图进 composer），主 Claude 接管后续：`read_page` 验证 chip 出现 → 写 prompt → send → spawn watcher。
+
+**Claude Cowork 方案**：从 [GitHub Releases](https://github.com/Wangnov/chatgpt-skill/releases/latest) 下载 `claude-chatgpt-skill.skill`，在 Claude Cowork 里直接拖入 / 上传。若自行打包，`.zip` / `.skill` 根目录必须包含 `SKILL.md`；若上传单个 `.md`，必须在 YAML frontmatter 里包含 Skill name 和 description。
+
+Codex 版走 Codex Chrome Extension 的原生 file chooser，不受 Claude app 的 session id 限制。
 
 详细诊断见 [CHANGELOG.md](CHANGELOG.md) v0.7.1 章节。
 
@@ -254,6 +268,8 @@ npx skills add Wangnov/chatgpt-skill \
   -y
 ```
 
+For **Claude Cowork**, download `claude-chatgpt-skill.skill` from the [latest GitHub Release](https://github.com/Wangnov/chatgpt-skill/releases/latest), then drag/upload it into Claude Cowork manually. Cowork package requirements: a single `.md` file must include YAML frontmatter with skill name and description; a `.zip` or `.skill` archive must include a root-level `SKILL.md`.
+
 Then just talk to Claude Code or Codex:
 
 ```
@@ -277,15 +293,16 @@ Model names drift (5.5 → 5.6 → "进阶专业" etc.). The skill matches on vi
 
 ### ⚠️ Known limitations
 
-#### 1. `file_upload` is permanently unavailable in Claude Code, but works in Codex Chrome
+#### 1. Claude Code file upload is temporarily unavailable; Claude Cowork works
 
 Root cause confirmed 2026-05-31 by reverse-engineering Claude app with codex:
 
 - Claude app's `validateLocalFileAccess` requires the session id to begin with `local_`
-- Claude Code sessions are plain UUIDs (`c9cf...`) and will **never** pass this gate — this is a **product boundary, not a bug**
+- Claude Code sessions are plain UUIDs (`c9cf...`) and currently cannot pass this gate — this is a **product boundary, not a bug**
+- Claude Cowork local-agent-mode uses `local_*` sessions and can use file upload, still limited by its allowed upload directories
 - The error message `only files the user has shared with this session can be uploaded` is **misleading**: it does not distinguish "wrong session type" from "path not shared"
 
-For Claude Code, have the user manually drag/drop in the browser, or use **Claude Cowork** (local-agent-mode, `local_*` sessions). The Codex variant uses the Codex Chrome Extension file chooser flow and has been smoke-tested successfully. Full Claude diagnosis is in [CHANGELOG.md](CHANGELOG.md) v0.7.1.
+For Claude Code, have the user manually drag/drop in the browser. For Claude Cowork, upload the released `claude-chatgpt-skill.skill` package manually; if building your own package, keep `SKILL.md` at the archive root. The Codex variant uses the Codex Chrome Extension file chooser flow and has been smoke-tested successfully. Full Claude diagnosis is in [CHANGELOG.md](CHANGELOG.md) v0.7.1.
 
 #### 2. Watcher async-wait is Claude-Code-specific
 
