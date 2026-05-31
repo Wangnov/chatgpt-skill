@@ -119,16 +119,21 @@ await promptBox.press("Enter");
 
 ## 文件上传
 
-Codex Chrome Extension 支持 file chooser。优先实际输入控件：
+Codex Chrome Extension 支持 file chooser。ChatGPT 优先走可见菜单路径，不点底层 `input[type="file"]`：
 
 ```js
 const chooserPromise = tab.playwright.waitForEvent("filechooser", { timeoutMs: 10000 });
-await tab.playwright.locator('input[type="file"]').click();
+
+await tab.playwright.getByRole("button", { name: /添加文件|Add|Attach/ }).click();
+
+// 菜单文案会随语言和 UI 漂移；点击前先用 domSnapshot() 确认当前可见文本。
+await tab.playwright.getByText(/添加照片和文件|Upload from computer|Add photos and files/).click();
+
 const chooser = await chooserPromise;
 await chooser.setFiles(["/absolute/path/to/file.txt"]);
 ```
 
-如果页面只提供可见上传按钮，先 snapshot 确认它会打开文件选择器，再点击。所有路径必须是绝对路径。
+如果当前 ChatGPT UI 的菜单文案不同，先 snapshot 确认真实按钮/菜单项，再替换上面的 locator。所有路径必须是绝对路径。
 
 ChatGPT 实测成功路径：
 

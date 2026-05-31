@@ -38,8 +38,8 @@
    - 右侧出现搜索次数，例如 `25 次搜索`。
    - 计划卡右下角从 `开始` 变成停止按钮。
 9. 把 URL、标题、当前计划和 heartbeat 策略告诉用户；heartbeat 只在 COMPLETE / NEEDS_USER_INPUT / TIMEOUT / ERROR 时回来：
-   - 先用 tool_search 搜 `automation_update` / wakeup / reminder；当前环境有 automation / wakeup 工具时，创建 automation。
-   - 当前环境没有 automation 工具时，spawn 后台 agent 作为默认 fallback。
+   - 先检查当前环境是否有 automation / wakeup 工具；如果 `tool_search` 可用，可以用它搜 `automation_update` / wakeup / reminder。
+   - 没有 `tool_search` 或没有 automation 工具时，spawn 后台 agent 作为默认 fallback。
    - 两者都不可用时，才交给用户用 URL 回来取。
 
 ## 用户回来取结果

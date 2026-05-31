@@ -4,8 +4,8 @@ Codex 版不复用 Claude 版后台 watcher 模板。等待策略按任务时长
 
 Heartbeat 的实现顺序：
 
-1. 先用 tool_search 搜 `automation_update` / wakeup / reminder；如果当前 Codex 环境暴露 automation / wakeup 工具，优先创建 automation。
-2. 如果没有 automation 工具，默认 spawn 一个后台 agent 做 heartbeat fallback。
+1. 先检查当前 Codex 环境是否暴露 automation / wakeup / reminder 能力；如果 `tool_search` 可用，可以用它搜索 `automation_update` / wakeup / reminder。
+2. 如果没有 `tool_search`，或搜索不到 automation 工具，不要卡住，默认 spawn 一个后台 agent 做 heartbeat fallback。
 3. 如果既不能 automation，也不能 spawn agent，才退回 Pull 模式。
 
 ## 模式 A：当前回合轮询
@@ -43,7 +43,7 @@ async function getMainText() {
   );
 }
 
-function classifyChatGPTText(text, expectedKeywords = []) {
+function classifyChatGPTText(text, { beforeSubmitText = "", expectedKeywords = [] } = {}) {
   const runningSignals = [
     "正在思考",
     "Pro 思考中",
@@ -64,14 +64,18 @@ function classifyChatGPTText(text, expectedKeywords = []) {
   const hasRunning = runningSignals.some(s => text.includes(s));
   const needsUser = needUserSignals.some(s => text.includes(s));
   const hasDisclaimer = text.includes("ChatGPT 也可能会犯错。请核查重要信息。");
-  const hasExpected = expectedKeywords.length === 0 || expectedKeywords.some(s => text.includes(s));
+  const hasExpected = expectedKeywords.some(s => text.includes(s));
+  const newText = beforeSubmitText && text.length > beforeSubmitText.length
+    ? text.slice(beforeSubmitText.length).trim()
+    : "";
+  const hasNewAnswer = newText.length >= 80;
   if (needsUser) return "NEEDS_USER_INPUT";
-  if (!hasRunning && hasDisclaimer && hasExpected) return "COMPLETE";
+  if (!hasRunning && hasDisclaimer && (hasExpected || hasNewAnswer)) return "COMPLETE";
   return "RUNNING";
 }
 ```
 
-上面是参考，不要把关键词列表当成完整协议。遇到 app 授权、速率限制、配额耗尽、模型不可用、CAPTCHA、反问、继续生成等，按 [error-and-limits.md](error-and-limits.md) 处理。
+上面是参考，不要把关键词列表当成完整协议。完成判定必须至少有一个回答信号：用户预期关键词命中，或提交前后的 `<main>` 文本对比显示新增 assistant 输出。不要只因为页面有静态 disclaimer 就判 COMPLETE。遇到 app 授权、速率限制、配额耗尽、模型不可用、CAPTCHA、反问、继续生成等，按 [error-and-limits.md](error-and-limits.md) 处理。
 
 ## 模式 B：Heartbeat 模式
 
