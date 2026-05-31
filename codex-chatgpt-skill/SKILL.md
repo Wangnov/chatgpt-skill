@@ -114,7 +114,7 @@ Codex 版不照搬 Claude 后台 watcher 模板。按任务时长分流，详见
 |---|---|
 | Instant / 短 Thinking | 当前回合轮询，每 20-60 秒检查一次 |
 | Pro / 长 Thinking | 当前回合轮询到 30 分钟上限；期间只在真正完成、超时或需要用户操作时发消息 |
-| Deep Research / 跨小时任务 | Heartbeat 模式：确认研究已启动后挂安静轮询；只在完成、超时或需要用户操作时发消息 |
+| Deep Research / 跨小时任务 | Heartbeat 模式：确认研究已启动后挂安静轮询；automation 优先，spawn agent 作为默认 fallback |
 
 轮询时不要给用户发"还在等"的例行状态。只有这些情况才报告：
 
@@ -169,7 +169,7 @@ Codex 版不照搬 Claude 后台 watcher 模板。按任务时长分流，详见
 [examples/](examples/) 里放 Codex 专属场景，不复用 Claude 版后台 watcher 模板：
 
 - `file-upload-roundtrip.md` — 上传本地文件、提交带附件 prompt、等待完成、取回回答（已实测）
-- `deep-research-pull.md` — 用 Codex 触发 Deep Research，启动后挂 heartbeat；没有后台能力时退回 Pull
+- `deep-research-pull.md` — 用 Codex 触发 Deep Research，启动后挂 heartbeat；automation 优先，spawn agent fallback，都没有才 Pull
 
 Claude 版更完整的历史场景仍在 `claude-chatgpt-skill/examples/`，只能借鉴任务意图；不要照搬其中的 `Agent({ run_in_background: true })` / watcher 做法。
 

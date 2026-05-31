@@ -2,6 +2,12 @@
 
 Codex 版不复用 Claude 版后台 watcher 模板。等待策略按任务时长分流；Deep Research 默认用 heartbeat 安静轮询。
 
+Heartbeat 的实现顺序：
+
+1. 先用 tool_search 搜 `automation_update` / wakeup / reminder；如果当前 Codex 环境暴露 automation / wakeup 工具，优先创建 automation。
+2. 如果没有 automation 工具，默认 spawn 一个后台 agent 做 heartbeat fallback。
+3. 如果既不能 automation，也不能 spawn agent，才退回 Pull 模式。
+
 ## 模式 A：当前回合轮询
 
 适用：
@@ -83,28 +89,32 @@ function classifyChatGPTText(text, expectedKeywords = []) {
 4. 点击"开始"后，确认进入研究进度态：计划项开始打勾 / 当前步骤文本变化 / 出现搜索次数 / 有停止按钮。
 5. 记录 conversation URL、标题、marker、当前计划和启动时间。
 6. 挂一个安静 heartbeat：每 3-5 分钟检查一次，最多 45-120 分钟。RUNNING 时不发中间状态；只有 COMPLETE、NEEDS_USER_INPUT、TIMEOUT、ERROR 才通知主会话/用户。
+   - 首选 automation / wakeup 工具。
+   - 没有 automation 工具时，spawn 一个后台 agent 作为默认 fallback。
+   - 两者都不可用时，退回 Pull。
 
 Heartbeat 每轮只读页面，不点按钮、不改 prompt、不授权、不停止研究。检查方式：
 
 1. claim 或打开 conversation URL。
-2. 读取 `<main>` 文本，必要时补一张截图看 iframe 内的计划卡。
+2. 读取 `<main>` 文本，同时检查页面里的 `iframe[title="internal://deep-research"]` 是否存在；必要时补一张截图看 iframe 内的计划/报告卡。
 3. 若仍有研究进度卡、停止按钮、"Searching..."、"Finalizing..."、搜索次数等信号，判定 RUNNING 并继续沉默。
-4. 若报告正文出现，且没有进行中信号，判定 COMPLETE，取回报告或摘要。
-5. 若出现 login / OAuth / CAPTCHA / Continue generating / clarification，判定 NEEDS_USER_INPUT。
+4. 若轮询接近完成但外层文本仍旧，刷新 conversation URL 一次再看截图；完成报告有时先渲染在 Deep Research iframe 里，外层 `<main>` 不会包含正文。
+5. 若截图或 iframe 卡片显示"研究完成情况"、报告标题，且没有停止/研究中信号，判定 COMPLETE，取回报告摘要；不要只等 `<main>` 出现报告正文。
+6. 若出现 login / OAuth / CAPTCHA / Continue generating / clarification，判定 NEEDS_USER_INPUT。
 
-Heartbeat prompt 模板：
+Spawn-agent fallback prompt 模板：
 
 ```text
 你是 ChatGPT Deep Research heartbeat 监控。目标 URL 是 <conversation-url>，标题是 <title>，marker 是 <marker>。
 
 使用 Codex Chrome Extension 复用用户已登录的 Chrome。不要使用外部浏览器、cookie、localStorage、storage_state 或系统脚本绕过。不要编辑仓库文件。
 
-每 <interval> 分钟检查一次，最多 <max-wait>。每次只读页面状态：claim 或打开 conversation URL，读取截图和 <main> 文本。不要点击"停止"、不要点分享、不要改 prompt、不要授权 OAuth、不要处理 CAPTCHA/登录。
+每 <interval> 分钟检查一次，最多 <max-wait>。每次只读页面状态：claim 或打开 conversation URL，读取截图、<main> 文本和是否存在 title 为 internal://deep-research 的 iframe。不要点击"停止"、不要点分享、不要改 prompt、不要授权 OAuth、不要处理 CAPTCHA/登录。若外层文本长时间不变，刷新 conversation URL 一次再判定。
 
-如果还在研究中，保持沉默继续下一轮。只有 COMPLETE / NEEDS_USER_INPUT / ERROR / TIMEOUT 才最终返回。
+如果还在研究中，保持沉默继续下一轮。看到"研究完成情况"、报告标题且没有停止/研究中信号时，判定 COMPLETE。只有 COMPLETE / NEEDS_USER_INPUT / ERROR / TIMEOUT 才最终返回。
 ```
 
-如果当前环境不能挂后台 heartbeat，才退回 Pull：把 URL 和当前进度交给用户，用户回来后说"看这个 DR"再取。
+如果当前环境既不能 automation，也不能 spawn agent，才退回 Pull：把 URL 和当前进度交给用户，用户回来后说"看这个 DR"再取。
 
 不要为了跨小时任务在主会话里轮询到天荒地老。ChatGPT 后端不依赖客户端持续在线，conversation URL 是恢复入口。
 
