@@ -33,6 +33,7 @@ await browser.nameSession("ChatGPT handoff");
 - `添加文件等` 菜单可展开并读到：添加照片和文件 / 近期文件 / 创建图片 / 深度研究 / 网页搜索 / 更多。
 - `更多` app 菜单可展开并读到：代理模式 / 添加源 / 画布 / 创建任务 / 财务 / GitHub / Gmail / Google 云端硬盘 / Hugging Face / OpenAI Platform。
 - 草稿附件可上传后再用 `移除文件...` 按钮取消，取消后不会提交消息。
+- Deep Research 已实测到启动成功路径：选择 `深度研究` 后 composer placeholder 变为 `获取详细报告`，发送 prompt 后出现研究计划卡片；点击计划卡片里的 `开始` 后，计划项开始推进，进度文本出现 `Searching ...` / `Finalizing ...`，并显示搜索次数。启动后应切到 heartbeat，而不是在主会话里干等。
 
 保留以下阻塞形态作为诊断项：如果 ChatGPT tab 上再次出现 `Detached while handling command`，随后 `domSnapshot()`、受限 `evaluate()`、截图或 `dom_cua.get_visible_dom()` 返回 `Unknown error`，优先怀疑 Chrome debugger 控制权冲突。不要改用 cookie、localStorage、外部 Playwright profile、Computer Use 或系统脚本绕过；先停掉其它控制 Chrome 的扩展、DevTools 或 MCP，再重新跑最小对照测试。
 

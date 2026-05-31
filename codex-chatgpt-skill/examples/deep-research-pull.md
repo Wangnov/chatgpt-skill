@@ -1,4 +1,4 @@
-# Example: Codex 触发 Deep Research 的 Pull 模式
+# Example: Codex 触发 Deep Research 的 Heartbeat / Pull 模式
 
 ## 触发说法
 
@@ -9,8 +9,8 @@
 ## 意图解析
 
 - **工具**：必须从 `添加文件等` 菜单选择 `深度研究`，不能只在普通 composer 里写 "deep research"。
-- **等待策略**：Deep Research 常常跨小时，Codex 不挂后台 watcher；默认 Pull 模式。
-- **交付物**：确认研究已启动后，交给用户 conversation URL 和当前可见计划；用户回来再让 Codex 取结果。
+- **等待策略**：Deep Research 常常跨小时；确认研究已启动后默认挂 heartbeat，不在主会话干等。
+- **交付物**：启动时交给用户 conversation URL 和当前可见计划；heartbeat 完成后再取结果。没有后台能力时才退回 Pull。
 
 ## 操作步骤
 
@@ -31,8 +31,13 @@
 
 5. 发送后等 conversation URL 生成。
 6. 如果出现研究计划确认卡片，读取计划摘要；除非用户已明确授权启动，否则把计划和按钮状态交给用户确认。
-7. 用户允许启动后，点击 `开始`。
-8. 看到正在研究的进度信号后，不继续长时间占住当前回合；把 URL、标题和当前计划告诉用户。
+7. 用户允许启动后，点击计划卡片里的 `开始`。如果可访问性树同时有 `开始听写`，不要用宽泛的 `/开始/` 匹配；先用截图确认计划卡按钮位置，或限定在计划卡 / iframe 内。
+8. 看到正在研究的进度信号后，挂 heartbeat，而不是继续占住当前回合：
+   - 计划项开始打勾或转圈。
+   - 进度文本出现，例如 `Searching ...`、`Finalizing ...`。
+   - 右侧出现搜索次数，例如 `25 次搜索`。
+   - 计划卡右下角从 `开始` 变成停止按钮。
+9. 把 URL、标题、当前计划和 heartbeat 策略告诉用户；heartbeat 只在 COMPLETE / NEEDS_USER_INPUT / TIMEOUT / ERROR 时回来。
 
 ## 用户回来取结果
 
@@ -47,5 +52,6 @@
 
 - 没确认 Deep Research 模式就发送，会变成普通问答。
 - 研究计划卡片不等于已经启动。要看到 `开始` 后的进度信号才算真的跑起来。
-- 不要用 Claude 版后台 watcher 模板；Codex 版默认让用户用 URL 回来取。
+- 不要在主会话里长时间干等；DR 启动后挂 heartbeat，无法挂时才让用户用 URL 回来取。
+- 不要用 Claude 版后台 watcher 模板；Codex 版 heartbeat 只做安静状态检查。
 - 不要替用户授权第三方 app，也不要绕过登录、CAPTCHA 或付费限制。
