@@ -2,6 +2,21 @@
 
 按 [Keep a Changelog](https://keepachangelog.com/) 格式记录，本项目遵循语义化版本（pre-1.0 阶段）。
 
+## [Unreleased]
+
+### Changed
+- Deep Research 触发路径不再写死为 `+` / `添加文件等` 菜单。Skill 现在同时记录 `@深度研究` 候选入口，并要求用 `获取详细报告` placeholder、`深度研究` chip、`应用`、`推荐` / `报告` 等当前可见信号确认 DR 模式。
+- 模型选择器位置不再假定在 composer 附近；当前 ChatGPT UI 可能把模型选择器放在顶部 banner，不同账户看到的模型列表也不同。
+- Apps 菜单说明从固定列表改为当前可见菜单 + `@` 候选双路径，避免因 ChatGPT UI 灰度而找错入口。
+- 管理手册对齐当前设置和全局页：`#settings/DataControls` 可见名为"数据管理"，`#settings/Connectors` 可见名为"应用"，新增 `#settings/Storage` 存储空间；`/library` 当前标题为"资料库"，`/projects` 有项目总览页，`/schedules` 当前账号会回到主页，不能当稳定入口。
+- 项目侧栏菜单加入置顶态：已置顶项目会显示"取消置顶项目"，未置顶项目通常显示"置顶项目"。
+
+### Verified
+- 2026-06-10 使用 Codex Chrome Extension 打开当前已登录 ChatGPT 页面验证：`添加文件等` 菜单仍可见 `深度研究`，输入 `@` 也可候选 `深度研究`；选择 `@深度研究` 后 composer 变为 `获取详细报告` 并出现 DR 专属控件。
+- 2026-06-10 复查 `/library`、`/apps`、`/projects`、设置弹窗和项目主页：项目主页 URL、`聊天 / 来源` tab、`<项目名>中的新聊天` placeholder 仍有效；资料库、应用设置、存储空间和项目列表页需要按当前可见文案操作。
+
+---
+
 ## [v0.8.0] - 2026-05-31
 
 ### Added

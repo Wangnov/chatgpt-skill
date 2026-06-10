@@ -35,6 +35,13 @@ await browser.nameSession("ChatGPT handoff");
 - 草稿附件可上传后再用 `移除文件...` 按钮取消，取消后不会提交消息。
 - Deep Research 已实测到完整成功路径：选择 `深度研究` 后 composer placeholder 变为 `获取详细报告`，发送 prompt 后出现研究计划卡片；点击计划卡片里的 `开始` 后，计划项开始推进，进度文本出现 `Searching ...` / `Finalizing ...`，并显示搜索次数。完成后报告渲染在 `iframe[title="internal://deep-research"]` 卡片里，截图可见 `研究完成情况：3m · 3 次引用 · 68 个搜索` 和报告标题；外层 `<main>` 不包含报告正文。启动后应切到 heartbeat，而不是在主会话里干等。
 
+2026-06-10 漂移复查：
+
+- 当前新聊天页的模型选择器可出现在顶部 banner，不一定在 composer 附近；免费/个人账户可能只显示 `ChatGPT` 和升级入口。模型选择必须按当前 snapshot 的可见文本处理，不硬编码 Instant / Thinking / Pro 列表。
+- `添加文件等` 菜单仍可见 `添加照片和文件`、`近期文件`、`创建图片`、`思考一下`、`深度研究`、`网页搜索`、`更多`、`项目`，但这些项受账户和 UI 灰度影响。
+- 在 composer 输入 `@` 后也会出现候选；实测候选包含 `深度研究`、Canva、GitHub、Linear、OpenAI Platform。选择 `@深度研究` 后同样能激活 DR 模式。
+- 选择 `@深度研究` 后的激活信号：composer placeholder 变为 `获取详细报告`，出现 `深度研究，点击以重试` 按钮、`应用` 按钮，以及 `推荐` / `报告` 标签页。旧文档里的 `+/深度研究/应用/站点/Pro` 只作为历史形态参考。
+
 保留以下阻塞形态作为诊断项：如果 ChatGPT tab 上再次出现 `Detached while handling command`，随后 `domSnapshot()`、受限 `evaluate()`、截图或 `dom_cua.get_visible_dom()` 返回 `Unknown error`，优先怀疑 Chrome debugger 控制权冲突。不要改用 cookie、localStorage、外部 Playwright profile、Computer Use 或系统脚本绕过；先停掉其它控制 Chrome 的扩展、DevTools 或 MCP，再重新跑最小对照测试。
 
 ### 已知根因线索：浏览器控制权冲突
@@ -124,7 +131,8 @@ Codex Chrome Extension 支持 file chooser。ChatGPT 优先走可见菜单路径
 ```js
 const chooserPromise = tab.playwright.waitForEvent("filechooser", { timeoutMs: 10000 });
 
-await tab.playwright.getByRole("button", { name: /添加文件|Add|Attach/ }).click();
+// 先从 domSnapshot() 确认当前按钮名；这里的中文名只是示例。
+await tab.playwright.getByRole("button", { name: "添加文件等" }).click();
 
 // 菜单文案会随语言和 UI 漂移；点击前先用 domSnapshot() 确认当前可见文本。
 await tab.playwright.getByText(/添加照片和文件|Upload from computer|Add photos and files/).click();

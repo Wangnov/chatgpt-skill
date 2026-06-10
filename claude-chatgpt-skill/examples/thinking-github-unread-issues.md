@@ -15,11 +15,11 @@
 ## 操作步骤
 
 1. `tabs_context_mcp` → 复用或创建 ChatGPT tab
-2. 看 composer 模型 pill。当前显示什么？
+2. 看当前页面可见的模型选择器 / 模型 pill。它可能在顶部 banner，也可能在 composer 附近。当前显示什么？
    - 已经是 Thinking → 跳过切换
-   - 是别的（Instant / Pro / 别的命名） → 点 pill，从下拉里选 "Thinking · 深入" 或当前对应 Thinking 的可见名
+   - 是别的（Instant / Pro / ChatGPT / 别的命名） → 点模型选择器，从下拉里选 "Thinking · 深入" 或当前对应 Thinking 的可见名
    - 看不到 Thinking 选项 → 报告用户实际看到的选项，让他决定
-3. 验证：发送前 pill 上显示的就是 Thinking 对应的文本（页面文案可能是中文"思考"/"深入"/"Thinking"，不要写死）
+3. 验证：发送前模型选择器显示的就是 Thinking 对应的文本（页面文案可能是中文"思考"/"深入"/"Thinking"，不要写死）
 4. composer 写：
 
    ```

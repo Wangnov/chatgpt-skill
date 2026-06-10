@@ -44,18 +44,19 @@ description: 通过 Claude Code 和 claude-in-chrome MCP，复用用户现有的
 
 ### 2. 模型选择
 
-- 用户指定了模型（Instant / Thinking / Pro / 别的命名都可能） → 点 composer 右下角的模型 pill，选最接近的可见项
+- 用户指定了模型（Instant / Thinking / Pro / 别的命名都可能） → 先找当前页面可见的模型选择器；它可能在 composer 附近，也可能在顶部 banner 里。点开后选最接近的可见项
 - 用户没指定 → 用当前选中的，不主动换
 - 切不到要求的模型 → **不静默换成别的**。报告 UI 上看到的实际选项，让用户决定
-- 模型名是会变的（5.5 改 5.6、新加 "Express"、Pro 改名"进阶专业"），靠**可见文本**和 ARIA 标签判断，不靠固定列表
+- 模型名和可见列表会变（不同账户可能只看到 ChatGPT + 升级入口，也可能看到 Thinking / Pro 等），靠**可见文本**和 ARIA 标签判断，不靠固定列表
 
 ### 3. Apps / 文件 / 图片
 
 #### Apps（连接器）
 
-- `+` 按钮 → 当前看到的子项：添加照片和文件 / 近期文件 / 创建图片 / 深度研究 / 网页搜索 / 更多 → / 项目 →
-- "更多 →" 才是 apps（Canva / GitHub / Gmail / Google 云端硬盘 / Linear / OpenAI Platform 等，未来还会加）
+- `+` / `添加文件等` 菜单通常包含：添加照片和文件 / 近期文件 / 创建图片 / 思考一下 / 深度研究 / 网页搜索 / 更多 / 项目。具体文案会随账户、语言和 UI 漂移，点击前先看当前页面
+- Apps 入口有两条：`+` 菜单里的 `更多` 子菜单，或在 composer 里输入 `@` 后选择候选。当前实测 `@` 候选可直接出现 `深度研究` 以及 Canva / GitHub / Linear / OpenAI Platform 等 app
 - **不要根据模型名推断 app 可用性**。Pro 也可以用 apps（已经在 2026-05 验证过用 Pro + @Google 云端硬盘 列文件、Pro + @GitHub 评估 PR 是否可合并）。直接 `@app` 试 → 看到 app chip / 检索卡片 / source 引用就成功
+- Deep Research 也可能作为 `@深度研究` 候选激活。选中后可靠信号是 composer placeholder 变成 `获取详细报告`，出现 `深度研究` chip / `应用` 按钮 / `推荐`、`报告` 等 DR 专属控件；不要把 `+` 菜单当成唯一入口
 - 如果 app 没连接或要 OAuth → **停下来让用户去授权**（参见 [references/error-and-limits.md](references/error-and-limits.md) 第 5 节），绝不替用户点同意
 
 #### 文件 / 图片上传 — Claude Code 永久不可用，Claude Cowork 才行

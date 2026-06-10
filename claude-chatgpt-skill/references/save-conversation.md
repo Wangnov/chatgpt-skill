@@ -46,7 +46,7 @@ watcher 模式下也常见：主 Claude 把 watcher 取回的结果给用户后�
    - 用户提问（一般是顶部消息，标题"你说："之后的内容）
    - assistant 完整回答（"ChatGPT 说："之后到 disclaimer 之前）
    - 思考时间标记（"已思考 Xm Ys" / "已思考 Xs"），如有
-   - 模型标记（底部模型 pill 文本，如"进阶专业" / "深入"）
+   - 模型标记（当前页面的模型选择器 / 模型 pill 可见文本；位置可能在顶部 banner 或 composer 附近）
 4. **Thinking 模型注意剥掉折叠思考过程**——只保留 final answer，记下 think_time
 5. 主 Claude 用 Bash 建目录：`mkdir -p ~/Downloads/chatgpt-skill/`
 6. 主 Claude 用 Write 写文件（模板见下）

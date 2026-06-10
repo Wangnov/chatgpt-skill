@@ -15,8 +15,8 @@
 ## 操作步骤
 
 1. 连接 Chrome，`browser.user.openTabs()` 找现有 ChatGPT tab；有就 `browser.user.claimTab(tab)`，没有就新开 `https://chatgpt.com/`。
-2. `domSnapshot()` 确认 composer 可用，并记录当前模型 pill。
-3. 如果用户指定模型，打开模型 pill，选择最接近的可见项；切不到就停下来报告可见选项。
+2. `domSnapshot()` 确认 composer 可用，并记录当前页面可见的模型选择器 / 模型 pill。模型入口可能在顶部 banner，也可能在 composer 附近。
+3. 如果用户指定模型，打开模型选择器，选择最接近的可见项；切不到就停下来报告可见选项。
 4. 打开 `添加文件等` → `添加照片和文件`。
 5. 点击菜单项之前先启动 `waitForEvent("filechooser")`。
 6. file chooser 出现后调用 `chooser.setFiles(["/absolute/path/to/file"])`。

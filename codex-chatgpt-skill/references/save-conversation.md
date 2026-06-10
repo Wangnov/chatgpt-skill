@@ -47,7 +47,7 @@ Codex 取回结果后，用户回一句"存下来"也触发本流程。
    - 用户提问
    - assistant 完整回答（到 disclaimer 之前）
    - 思考时间标记（"已思考 Xm Ys" / "已思考 Xs"），如有
-   - 模型标记（底部模型 pill 文本，如"进阶专业" / "深入"）
+   - 模型标记（当前页面的模型选择器 / 模型 pill 可见文本；位置可能在顶部 banner 或 composer 附近）
 4. Thinking 模型注意剥掉折叠思考过程，只保留 final answer，思考耗时写入 `think_time`。
 5. 主 Codex 用 shell 建目录：`mkdir -p ~/Downloads/chatgpt-skill/`。
 6. 写 Markdown 文件。

@@ -8,17 +8,19 @@
 
 ## 意图解析
 
-- **工具**：必须从 `添加文件等` 菜单选择 `深度研究`，不能只在普通 composer 里写 "deep research"。
+- **工具**：必须显式激活 Deep Research 模式，不能只在普通 composer 里写 "deep research"。入口可能是 `添加文件等` / `+` 菜单里的 `深度研究`，也可能是在 composer 输入 `@深度研究` 后选择候选。
 - **等待策略**：Deep Research 常常跨小时；确认研究已启动后默认挂 heartbeat，不在主会话干等。
 - **交付物**：启动时交给用户 conversation URL 和当前可见计划；heartbeat 完成后再取结果。automation 优先，spawn agent 是默认 fallback；两者都不可用才退回 Pull。
 
 ## 操作步骤
 
 1. 连接 Chrome 并复用或打开 ChatGPT tab。
-2. 打开 `添加文件等` 菜单，点击 `深度研究`。
+2. 激活 Deep Research：
+   - 优先用当前可见入口：打开 `添加文件等` / `+` 菜单，点击 `深度研究`。
+   - 如果菜单里没有，或用户当前页面只在候选里暴露该能力，在 composer 输入 `@深度研究`，等候选出现后选中它。
 3. 用 `domSnapshot()` 或截图确认 Deep Research 模式已激活：
    - composer placeholder 变成类似 `获取详细报告`。
-   - composer 附近出现 `深度研究` chip 或同等视觉信号。
+   - composer 附近出现 `深度研究` chip、`应用` 按钮，或 `推荐` / `报告` 等 DR 专属控件。
 4. 输入用户主题和约束，例如：
 
    ```text

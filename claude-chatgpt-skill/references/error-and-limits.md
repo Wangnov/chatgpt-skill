@@ -23,7 +23,7 @@
 
 - 弹窗或 banner，文本含 "reached the limit"、"达到使用上限"、"Pro 用量已达上限"、"limit on GPT-X" 这类
 - 经常附带 "Resets at YYYY-MM-DD HH:MM" 或 "Resets in X hours"
-- 模型 pill 可能自动降级（"Pro" 灰掉，自动选了别的模型）
+- 模型选择器 / 模型 pill 可能自动降级（"Pro" 灰掉，自动选了别的模型）
 
 ### 处理
 
@@ -35,7 +35,7 @@
 
 ### 可见信号
 
-- 模型 pill 文本变成 "(unavailable)" 或带感叹号
+- 模型选择器 / 模型 pill 文本变成 "(unavailable)" 或带感叹号
 - 选模型时该选项变灰、置底、带 "Temporarily unavailable" 副标题
 - 提交后立刻出错："This model is currently unavailable"
 - 偶尔伴随服务状态页面的链接

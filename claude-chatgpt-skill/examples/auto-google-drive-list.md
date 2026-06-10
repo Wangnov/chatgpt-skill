@@ -15,8 +15,8 @@
 ## 操作步骤
 
 1. `tabs_context_mcp` → 找现有 ChatGPT tab；没有就 `tabs_create_mcp` + `navigate` 到 `https://chatgpt.com/`
-2. `read_page` 看主页加载完成（看到 "你在忙什么？" 标题、composer 可输入）
-3. 看 composer 右下角的模型 pill，记下当前是什么（Instant / Thinking / Pro / 别的）。**不要切换**
+2. `read_page` 看主页加载完成（看到主页标题或个性化问候、composer 可输入；标题可能不是固定的"你在忙什么？"）
+3. 看当前页面可见的模型选择器 / 模型 pill，记下当前是什么（Instant / Thinking / Pro / ChatGPT / 别的）。它可能在顶部 banner，也可能在 composer 附近。**不要切换**
 4. 在 composer 里写：
 
    ```

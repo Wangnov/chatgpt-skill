@@ -87,12 +87,13 @@ function classifyChatGPTText(text, { beforeSubmitText = "", expectedKeywords = [
 
 流程：
 
-1. 提交 Deep Research prompt。
-2. 等到 ChatGPT 展示研究计划和"开始"按钮。
-3. 若用户已明确要求启动研究且没有预算/隐私新风险，可以点"开始"；否则让用户确认。
-4. 点击"开始"后，确认进入研究进度态：计划项开始打勾 / 当前步骤文本变化 / 出现搜索次数 / 有停止按钮。
-5. 记录 conversation URL、标题、marker、当前计划和启动时间。
-6. 挂一个安静 heartbeat：每 3-5 分钟检查一次，最多 45-120 分钟。RUNNING 时不发中间状态；只有 COMPLETE、NEEDS_USER_INPUT、TIMEOUT、ERROR 才通知主会话/用户。
+1. 先显式激活 Deep Research 模式：用当前可见的 `+` / `添加文件等` → `深度研究`，或 composer 里的 `@深度研究` 候选。看到 `获取详细报告` placeholder、`深度研究` chip、`应用` 按钮、`推荐` / `报告` 等控件后再继续。
+2. 提交 Deep Research prompt。
+3. 等到 ChatGPT 展示研究计划和"开始"按钮。
+4. 若用户已明确要求启动研究且没有预算/隐私新风险，可以点"开始"；否则让用户确认。
+5. 点击"开始"后，确认进入研究进度态：计划项开始打勾 / 当前步骤文本变化 / 出现搜索次数 / 有停止按钮。
+6. 记录 conversation URL、标题、marker、当前计划和启动时间。
+7. 挂一个安静 heartbeat：每 3-5 分钟检查一次，最多 45-120 分钟。RUNNING 时不发中间状态；只有 COMPLETE、NEEDS_USER_INPUT、TIMEOUT、ERROR 才通知主会话/用户。
    - 首选 automation / wakeup 工具。
    - 没有 automation 工具时，spawn 一个后台 agent 作为默认 fallback。
    - 两者都不可用时，退回 Pull。

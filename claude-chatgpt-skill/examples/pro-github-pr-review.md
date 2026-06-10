@@ -16,10 +16,10 @@
 ## 操作步骤
 
 1. `tabs_context_mcp` → 复用或创建 ChatGPT tab
-2. 模型 pill：
-   - 当前不是 Pro → 点 pill，选 "Pro · 进阶"（UI 文案可能漂移，但语义识别"Pro"）
+2. 模型选择器 / 模型 pill：
+   - 当前不是 Pro → 点当前页面可见的模型选择器，选 "Pro · 进阶"（UI 文案可能漂移，但语义识别"Pro"）
    - 已经是 Pro → 跳过
-3. 验证 pill 显示 Pro
+3. 验证模型选择器显示 Pro
 4. composer 写：
 
    ```
